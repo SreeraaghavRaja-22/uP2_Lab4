@@ -3,14 +3,14 @@
 // Date Updated: 2023-07-27
 // Defines for scheduler functions
 
-#include "../G8RTOS_Scheduler.h"
+#include "G8RTOS_Scheduler.h"
 
 /************************************Includes***************************************/
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../G8RTOS_CriticalSection.h"
+#include "G8RTOS_CriticalSection.h"
 
 #include <inc/hw_memmap.h>
 #include "inc/hw_types.h"
@@ -119,7 +119,13 @@ int32_t G8RTOS_Launch() {
 // Chooses next thread in the TCB. This time uses priority scheduling.
 // Return: void
 void G8RTOS_Scheduler() {
-    // your code
+    CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
+
+    // skip if the thread is not blocked and switch to the first unblocked thread
+    while(CurrentlyRunningThread -> blocked)
+    {
+        CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
+    }
 }
 
 // G8RTOS_AddThread

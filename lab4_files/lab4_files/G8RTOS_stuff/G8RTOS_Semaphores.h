@@ -37,6 +37,7 @@ typedef int32_t semaphore_t;
 void G8RTOS_InitSemaphore(semaphore_t* s, int32_t value);
 void G8RTOS_WaitSemaphore(semaphore_t* s);
 void G8RTOS_SignalSemaphore(semaphore_t* s);
+void G8RTOS_Suspend();
 
 /********************************Public Functions***********************************/
 
