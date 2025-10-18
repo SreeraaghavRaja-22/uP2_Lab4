@@ -79,6 +79,11 @@ void SysTick_Handler() {
     tcb_t* currThread = CurrentlyRunningThread;
 
     // your code
+    // decrement the sleep counter if the current thread is asleep???
+    if(CurrentlyRunningThread -> asleep)
+    {
+        (CurrentlyRunningThread -> sleepCount)--;
+    }
 
     HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
 }
@@ -122,7 +127,8 @@ void G8RTOS_Scheduler() {
     CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
 
     // skip if the thread is not blocked and switch to the first unblocked thread
-    while(CurrentlyRunningThread -> blocked)
+    // or skip if a thread is asleep (aka the counter is not equal to 0)
+    while((CurrentlyRunningThread -> blocked) || (CurrentlyRunningThread -> asleep))
     {
         CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
     }
@@ -182,7 +188,10 @@ sched_ErrCode_t G8RTOS_KillSelf() {
 // Puts current thread to sleep
 // Param uint32_t "durationMS": how many systicks to sleep for
 void sleep(uint32_t durationMS) {
-    // your stuff goes here
+    CurrentlyRunningThread -> sleepCount = durationMS; 
+    CurrentlyRunningThread -> asleep = true;
+    while(durationMS != 0){(CurrentlyRunningThread -> sleepCount)--;}
+    CurrentlyRunningThread -> asleep = false;
 }
 
 // G8RTOS_GetThreadID

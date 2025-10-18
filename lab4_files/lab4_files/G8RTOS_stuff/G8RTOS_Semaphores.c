@@ -67,6 +67,7 @@ void G8RTOS_WaitSemaphore(semaphore_t* s) {
 
         // do this for a context switch (set SysTick interrupt)
         HWREG(NVIC_ST_CTRL) |= NVIC_INT_CTRL_PENDSTSET;
+        asm("nop");
     }
     // enable interrupts
     EndCriticalSection(IBit_State);
@@ -93,6 +94,7 @@ void G8RTOS_SignalSemaphore(semaphore_t* s) {
         }
         // wake up thread with matching semaphore blocking it
         pt -> blocked = 0;
+        asm("nop");
     }
     EndCriticalSection(IBit_State);
 }
