@@ -142,7 +142,7 @@ void G8RTOS_Scheduler() {
 // Param char* "name": character array containing the thread name.
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name) {
-  // your code
+  // add code here (too tired rn)
         
 }
 
