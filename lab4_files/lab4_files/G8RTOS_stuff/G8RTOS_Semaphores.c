@@ -13,7 +13,7 @@
 #include "inc/hw_nvic.h"
 #include "G8RTOS_CriticalSection.h"
 #include "G8RTOS_Scheduler.h"
-#include "tm4c123gh6pm.h"
+
 
 /************************************Includes***************************************/
 
@@ -49,7 +49,7 @@ void G8RTOS_InitSemaphore(semaphore_t* s, int32_t value) {
 void G8RTOS_WaitSemaphore(semaphore_t* s) {
     IBit_State = StartCriticalSection(); 
     // decrement value of semaphore by 1
-    (*s) = (*s) - 1;
+    (*s)--;
 
     /* if the semaphore is less than 0, that means the resource is being used
     another thread is waiting on it too 
@@ -63,11 +63,14 @@ void G8RTOS_WaitSemaphore(semaphore_t* s) {
         // figure out how to implement this
         // trigger systick interrupt to enable thread switch
         // G8RTOS_Suspend();
-        HWREG(NVIC_ST_CURRENT) |= 0; // reset counter 
+        // HWREG(NVIC_ST_CURRENT) |= 0; // reset counter 
 
         // do this for a context switch (set SysTick interrupt)
-        HWREG(NVIC_ST_CTRL) |= NVIC_INT_CTRL_PENDSTSET;
-        asm("nop");
+        // HWREG(NVIC_ST_CTRL) |= NVIC_INT_CTRL_PENDSTSET;
+        // asm("nop");
+
+        // context switch
+        HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
     }
     // enable interrupts
     EndCriticalSection(IBit_State);

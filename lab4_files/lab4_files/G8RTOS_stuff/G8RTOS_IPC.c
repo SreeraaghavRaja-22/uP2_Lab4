@@ -21,7 +21,12 @@
 /****************************Data Structure Definitions*****************************/
 
 typedef struct G8RTOS_FIFO_t {
-
+    int32_t buffer[FIFO_SIZE];
+    int32_t* head;
+    int32_t* tail; 
+    uint32_t lostData; // used for debugging
+    semaphore_t currentSize;
+    semaphore_t mutex;
 
 } G8RTOS_FIFO_t;
 
@@ -34,16 +39,27 @@ typedef struct G8RTOS_FIFO_t {
 
 static G8RTOS_FIFO_t FIFOs[MAX_NUMBER_OF_FIFOS];
 
+uint32_t volatile *putPt;
+uint32_t volatile *getPt;
 /********************************Public Variables***********************************/
 
 /********************************Public Functions***********************************/
 
 // G8RTOS_InitFIFO
-// Initializes FIFO, points head & tai to relevant buffer
+// Initializes FIFO, points head & tail to relevant buffer
 // memory addresses.
 // Param "FIFO_index": Index of FIFO block
 // Return: int32_t, -1 if error (i.e. FIFO full), 0 if okay
 int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
+
+    if(FIFO_index = MAX_NUMBER_OF_FIFOS)
+    {
+        return -1;
+    }
+
+    FIFOs[FIFO_index].head = FIFOs[FIFO_index].tail = &FIFOs[FIFO_index];
+    G8RTOS_InitSemaphore(&FIFOs[FIFO_index].currentSize, 0);
+    G8RTOS_InitSemaphore(&FIFOs[FIFO_index].mutex, 1);
 
 
 }

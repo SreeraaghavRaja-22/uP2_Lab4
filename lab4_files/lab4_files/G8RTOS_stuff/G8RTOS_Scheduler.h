@@ -75,6 +75,8 @@ void sleep(uint32_t durationMS);
 threadID_t G8RTOS_GetThreadID();
 uint32_t G8RTOS_GetNumberOfThreads(void);
 
+void SetInitialStack(int i);
+
 /********************************Public Functions***********************************/
 
 

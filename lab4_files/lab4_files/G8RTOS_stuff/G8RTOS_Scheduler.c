@@ -4,6 +4,7 @@
 // Defines for scheduler functions
 
 #include "G8RTOS_Scheduler.h"
+#include "G8RTOS_Structures.h"
 
 /************************************Includes***************************************/
 
@@ -27,7 +28,7 @@
 // Thread Control Blocks - array to hold information for each thread
 static tcb_t threadControlBlocks[MAX_THREADS];
 
-// Thread Stacks - array of arrays for individual stacks of each thread
+// Thread threadStacks - array of arrays for individual stacks of each thread
 static uint32_t threadStacks[MAX_THREADS][STACKSIZE];
 
 // Periodic Event Threads - array to hold pertinent information for each thread
@@ -40,6 +41,7 @@ static uint32_t NumberOfThreads;
 static uint32_t NumberOfPThreads;
 
 static uint32_t threadCounter = 0;
+
 
 /********************************Private Variables**********************************/
 
@@ -75,15 +77,23 @@ tcb_t* CurrentlyRunningThread;
 // Return: void
 void SysTick_Handler() {
     SystemTime++;
-
     tcb_t* currThread = CurrentlyRunningThread;
+    ptcb_t* currentPeriodicThread = &pthreadControlBlocks[0];
 
-    // your code
-    // decrement the sleep counter if the current thread is asleep???
-    if(CurrentlyRunningThread -> asleep)
+    // loop through all the periodic threads and execute them appropriately (if their time is now)
+
+    // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
+    do
     {
-        (CurrentlyRunningThread -> sleepCount)--;
-    }
+        currThread = currThread -> nextTCB;
+        if(SystemTime >= currThread -> sleepCount && currThread -> asleep)
+        {
+            currThread -> sleepCount = 0;
+            currThread -> asleep = false;
+        }
+
+    } while (CurrentlyRunningThread != currThread);
+    
 
     HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
 }
@@ -124,14 +134,32 @@ int32_t G8RTOS_Launch() {
 // Chooses next thread in the TCB. This time uses priority scheduling.
 // Return: void
 void G8RTOS_Scheduler() {
-    CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
 
-    // skip if the thread is not blocked and switch to the first unblocked thread
-    // or skip if a thread is asleep (aka the counter is not equal to 0)
-    while((CurrentlyRunningThread -> blocked) || (CurrentlyRunningThread -> asleep))
+    // define the max priority 
+    uint8_t max = 255;
+    
+    // define two threads that are the thread and current thread that we're looking at
+    tcb_t *pt; 
+    tcb_t *bestPt;
+
+    // set the thread we're looking at to the currently running thread
+    pt = CurrentlyRunningThread; 
+
+    // have a do while loop so that we can at least go through the loop once 
+    // this loops through all the threads and finds the next one highest priority one that is neither asleep or blocked
+    do
     {
-        CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
-    }
+        pt = pt -> nextTCB; 
+        if((pt->priority < max) && ((pt->blocked) == 0) && (pt->asleep))
+        {
+            max = pt->priority;
+            bestPt = pt;
+        }
+
+    }while(CurrentlyRunningThread != pt);
+
+    // update the value of the CRT to the bestPT
+    CurrentlyRunningThread = bestPt;
 }
 
 // G8RTOS_AddThread
@@ -142,8 +170,48 @@ void G8RTOS_Scheduler() {
 // Param char* "name": character array containing the thread name.
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name) {
-  // add code here (too tired rn)
+    IBit_State = StartCriticalSection();
+    
+    // check that num_threads == max_threads {return error code }
+    if(NumberOfThreads >= MAX_THREADS){
         
+        // end critical section early and exist function
+        EndCriticalSection(IBit_State);
+
+        // return error code
+        return THREAD_LIMIT_REACHED;
+    } 
+
+    // added always points to the first thread (next)
+    threadControlBlocks[NumberOfThreads].nextTCB = &threadControlBlocks[0];
+    // first always points to the added (prev)
+    threadControlBlocks[0].previousTCB = &threadControlBlocks[NumberOfThreads];
+
+    if(NumberOfThreads != 0){
+        // case when you're adding threads
+        // previously / intermediate thread points to most recently added thread
+    threadControlBlocks[NumberOfThreads - 1].nextTCB = &threadControlBlocks[NumberOfThreads];        
+        // most recently added thread points to previously added thread 
+    threadControlBlocks[NumberOfThreads].previousTCB = &threadControlBlocks[NumberOfThreads-1];
+    }
+
+    // initialize the stack of the current thread
+    SetInitialStack(NumberOfThreads);
+
+    // set the program counter value to the value of the thread that we need
+    threadStacks[NumberOfThreads][STACKSIZE-2] = (int32_t)threadToAdd;
+    
+    threadControlBlocks[NumberOfThreads].priority = priority;
+
+    for(int i = 0; i < MAX_NAME_LENGTH; i++)
+    {
+        threadControlBlocks[NumberOfThreads].threadName[i] = name[i];
+    }
+
+    // increment the number of threads at the end
+    NumberOfThreads++; 
+    
+    EndCriticalSection(IBit_State);
 }
 
 // G8RTOS_Add_APeriodicEvent
@@ -188,10 +256,9 @@ sched_ErrCode_t G8RTOS_KillSelf() {
 // Puts current thread to sleep
 // Param uint32_t "durationMS": how many systicks to sleep for
 void sleep(uint32_t durationMS) {
-    CurrentlyRunningThread -> sleepCount = durationMS; 
+    CurrentlyRunningThread -> sleepCount = durationMS + SystemTime; 
     CurrentlyRunningThread -> asleep = true;
-    while(durationMS != 0){(CurrentlyRunningThread -> sleepCount)--;}
-    CurrentlyRunningThread -> asleep = false;
+    HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
 }
 
 // G8RTOS_GetThreadID
@@ -206,5 +273,33 @@ threadID_t G8RTOS_GetThreadID(void) {
 // Return: uint32_t
 uint32_t G8RTOS_GetNumberOfThreads(void) {
     return NumberOfThreads;         //Returns the number of threads
+}
+
+
+void SetInitialStack(int i){
+    // stack builds down, so stack pointer initialized to "top of stack" which is at the bottom since the stack builds down 
+    // just sets the stack for each thread with fake news
+    threadControlBlocks[i].stackPointer = &threadStacks[i][STACKSIZE-16]; // thread stack pointer
+    threadStacks[i][STACKSIZE-1] = 0x01000000; // Thumb bit -- could also use the Group Configuration PSR
+
+    // LR = R14 and R12
+    threadStacks[i][STACKSIZE-3] = 0x14141414; // R14
+    threadStacks[i][STACKSIZE-4] = 0x12121212; // R12
+
+    // Hardware Stack Registers
+    threadStacks[i][STACKSIZE-5] = 0x03030303; // R3
+    threadStacks[i][STACKSIZE-6] = 0x02020202; // R2
+    threadStacks[i][STACKSIZE-7] = 0x01010101; // R1
+    threadStacks[i][STACKSIZE-8] = 0x00000000; // R0
+
+    // Scratch registers???
+    threadStacks[i][STACKSIZE-9] = 0x11111111; // R11
+    threadStacks[i][STACKSIZE-10] = 0x10101010; // R10
+    threadStacks[i][STACKSIZE-11] = 0x09090909; // R9
+    threadStacks[i][STACKSIZE-12] = 0x08080808; // R8
+    threadStacks[i][STACKSIZE-13] = 0x07070707; // R7
+    threadStacks[i][STACKSIZE-14] = 0x06060606; // R6
+    threadStacks[i][STACKSIZE-15] = 0x05050505; // R5
+    threadStacks[i][STACKSIZE-16] = 0x04040404; // R4
 }
 /********************************Public Functions***********************************/
