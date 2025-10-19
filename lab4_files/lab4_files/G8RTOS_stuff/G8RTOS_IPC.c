@@ -52,16 +52,15 @@ uint32_t volatile *getPt;
 // Return: int32_t, -1 if error (i.e. FIFO full), 0 if okay
 int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
 
-    if(FIFO_index = MAX_NUMBER_OF_FIFOS)
+    if(FIFOs[FIFO_index].currentSize = FIFO_SIZE)
     {
         return -1;
     }
-
     FIFOs[FIFO_index].head = FIFOs[FIFO_index].tail = &FIFOs[FIFO_index];
+    // need to update the size of this semaphore
     G8RTOS_InitSemaphore(&FIFOs[FIFO_index].currentSize, 0);
+    // in case multiple threads read the same FIFO
     G8RTOS_InitSemaphore(&FIFOs[FIFO_index].mutex, 1);
-
-
 }
 
 // G8RTOS_ReadFIFO
