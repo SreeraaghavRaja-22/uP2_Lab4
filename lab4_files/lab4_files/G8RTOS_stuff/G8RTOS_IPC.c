@@ -52,15 +52,21 @@ uint32_t volatile *getPt;
 // Return: int32_t, -1 if error (i.e. FIFO full), 0 if okay
 int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
 
-    if(FIFOs[FIFO_index].currentSize = FIFO_SIZE)
+    if(FIFOs[FIFO_index].currentSize.count = FIFO_SIZE)
     {
         return -1;
     }
+    // initialize head and tail addresses
     FIFOs[FIFO_index].head = FIFOs[FIFO_index].tail = &FIFOs[FIFO_index];
+    // initialize lost data to 0
+    FIFOs[FIFO_index].lostData = 0;
     // need to update the size of this semaphore
     G8RTOS_InitSemaphore(&FIFOs[FIFO_index].currentSize, 0);
     // in case multiple threads read the same FIFO
     G8RTOS_InitSemaphore(&FIFOs[FIFO_index].mutex, 1);
+
+    // return 0 for successful initialization
+    return 0;
 }
 
 // G8RTOS_ReadFIFO
@@ -69,7 +75,30 @@ int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
 // Return: int32_t, data at head pointer
 int32_t G8RTOS_ReadFIFO(uint32_t FIFO_index) {
 
+    // wait for exclusive access
+    G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].mutex);
+    
+    // wait for an item to be available 
+    G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].currentSize);
 
+    // get the data (dereference head)
+    int32_t data = *FIFOs[FIFO_index].head;
+
+    // increment the head
+    FIFOs[FIFO_index].head++;
+
+    // if the value of head (stores and address) = address of final element in buffer array
+    if(FIFOs[FIFO_index].head == &FIFOs[FIFO_index].buffer[FIFO_SIZE])
+    {
+        // set the value of head back to the start (wrap-around)
+        FIFOs[FIFO_index].head = &FIFOs[FIFO_index].buffer[0];
+    }
+    
+    // signal that the FIFO has been used to read
+    G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
+    G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
+
+    return data;
 }
 
 // G8RTOS_WriteFIFO
@@ -77,6 +106,37 @@ int32_t G8RTOS_ReadFIFO(uint32_t FIFO_index) {
 // Param "FIFO_index": Index of FIFO block
 // Return: int32_t, data at head pointer
 int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
+    // wait for exclusive access
+    G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].mutex);
+    
+    // wait for an item to be available 
+    G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].currentSize);
+
+    if(FIFOs[FIFO_index].currentSize.count > FIFO_SIZE - 1)
+    {
+        return -2;
+    }
+    else if(FIFO_index > FIFO_SIZE - 1)
+    {
+        (FIFOs[FIFO_index].lostData)++;
+        return -1;
+    }
+
+    // return FIFO Size
+    *(FIFOs[FIFO_index].tail) = data; 
+    *(FIFOs[FIFO_index].tail)++;
+
+    if(FIFOs[FIFO_index].tail == &FIFOs[FIFO_index].buffer[FIFO_SIZE])
+    {
+        FIFOs[FIFO_index].tail = &FIFOs[FIFO_index].buffer[0];
+    }
+
+    G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
+    G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
+
+
+
+
 
 
 }
