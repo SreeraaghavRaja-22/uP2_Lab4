@@ -7,6 +7,9 @@
 #include "multimod_OPT3001.h"
 #include "multimod_LaunchpadButtons.h"
 #include "multimod_LaunchpadLED.h"
+#include "multimod_joystick.h"
+#include "multimod_PCA9555.h"
+#include "multimod_PCA9956b.h"
 
 static void Multimod_Init() {
     BMI160_Init();
