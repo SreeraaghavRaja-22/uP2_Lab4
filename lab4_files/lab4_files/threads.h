@@ -27,6 +27,21 @@ void Thread1(void);
 void Thread2(void);
 void Thread3(void);
 void Thread4(void);
+void Idle_Thread(void);
+void CamMove_Thread(void);
+void Cube_Thread(void);
+void Read_Buttons();
+void Read_JoystickPress();
+void Print_WorldCoords(void);
+void Get_Joystick(void);
+void GPIOE_Handler();
+void GPIOD_Handler();
+
+
+
+
+
+
 
 /********************************Thread Functions***********************************/
 

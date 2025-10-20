@@ -10,6 +10,7 @@
 #include "multimod_joystick.h"
 #include "multimod_PCA9555.h"
 #include "multimod_PCA9956b.h"
+#include "multimod_ST7789.h"
 
 static void Multimod_Init() {
     BMI160_Init();
