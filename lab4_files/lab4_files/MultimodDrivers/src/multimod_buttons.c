@@ -5,9 +5,9 @@
 
 /************************************Includes***************************************/
 
-#include "../multimod_buttons.h"
+#include "multimod_buttons.h"
 
-#include "../multimod_i2c.h"
+#include "multimod_i2c.h"
 
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>

@@ -5,7 +5,7 @@
 
 /************************************Includes***************************************/
 
-#include "./threads.h"
+#include "threads.h"
 
 #include "./MultimodDrivers/multimod.h"
 #include "./MiscFunctions/Shapes/inc/cube.h"
