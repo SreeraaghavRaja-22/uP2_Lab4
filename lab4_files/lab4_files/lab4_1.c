@@ -50,6 +50,7 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
 
     G8RTOS_Init();
+    G8RTOS_AddThread(Idle_Thread,
     G8RTOS_AddThread(Thread0, 0, "Thread 0");
     G8RTOS_AddThread(Thread1, 1, "Thread 1");
     G8RTOS_AddThread(Thread2, 2, "Thread 2");

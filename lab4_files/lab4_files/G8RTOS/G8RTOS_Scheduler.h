@@ -23,6 +23,7 @@
 #define MAX_PTHREADS        3
 #define STACKSIZE           512
 #define OSINT_PRIORITY      7
+#define MIN_PRIORITY        255
 
 /*************************************Defines***************************************/
 
