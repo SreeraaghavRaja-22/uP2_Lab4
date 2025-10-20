@@ -52,7 +52,7 @@ uint32_t volatile *getPt;
 // Return: int32_t, -1 if error (i.e. FIFO full), 0 if okay
 int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
 
-    if(FIFOs[FIFO_index].currentSize.count = FIFO_SIZE)
+    if(FIFOs[FIFO_index].currentSize.count == FIFO_SIZE)
     {
         return -1;
     }
@@ -134,11 +134,7 @@ int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
     G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
     G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
 
-
-
-
-
-
+    return 0;
 }
 
 /********************************Public Functions***********************************/
