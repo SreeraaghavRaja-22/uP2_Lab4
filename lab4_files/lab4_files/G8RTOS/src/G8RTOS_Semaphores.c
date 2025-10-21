@@ -4,15 +4,15 @@
 // Defines for semaphore functions
 
 
-#include "G8RTOS_Semaphores.h"
+#include "../G8RTOS_Semaphores.h"
 
 /************************************Includes***************************************/
 #include <inc/hw_memmap.h>
 #include "inc/hw_types.h"
 #include "inc/hw_ints.h"
 #include "inc/hw_nvic.h"
-#include "G8RTOS_CriticalSection.h"
-#include "G8RTOS_Scheduler.h"
+#include "../G8RTOS_CriticalSection.h"
+#include "../G8RTOS_Scheduler.h"
 
 
 /************************************Includes***************************************/

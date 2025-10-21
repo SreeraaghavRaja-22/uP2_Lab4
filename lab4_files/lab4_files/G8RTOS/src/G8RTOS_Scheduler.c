@@ -3,15 +3,15 @@
 // Date Updated: 2023-07-27
 // Defines for scheduler functions
 
-#include "G8RTOS_Scheduler.h"
-#include "G8RTOS_Structures.h"
+#include "../G8RTOS_Scheduler.h"
+#include "../G8RTOS_Structures.h"
 
 /************************************Includes***************************************/
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "G8RTOS_CriticalSection.h"
+#include "../G8RTOS_CriticalSection.h"
 
 #include <inc/hw_memmap.h>
 #include "inc/hw_types.h"
@@ -87,9 +87,10 @@ void SysTick_Handler() {
     do
     {
         currThread = currThread -> nextTCB;
-        if((SystemTime >= currThread -> sleepCount))
+        if((SystemTime >= currThread -> sleepCount) && (currThread -> sleepCount != 0)) // != or >= works but it's uint32_t so != should be chill
         {
             currThread -> asleep = false;
+            currThread -> sleepCount = 0; 
         }
     } while (CurrentlyRunningThread != currThread);
     
@@ -152,7 +153,7 @@ void G8RTOS_Scheduler() {
     do
     {
         pt = pt -> nextTCB; 
-        if((pt->priority < max) && ((pt->blocked) == 0) && (pt->asleep))
+        if((pt->priority < max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
         {
             max = pt->priority;
             bestPt = pt;
@@ -235,11 +236,12 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
 
 // G8RTOS_Add_APeriodicEvent
 // Param void* "AthreadToAdd": pointer to thread function address
-// Param uint8_t "priority": Priorit of aperiodic event, [1..6]
+// Param uint8_t "priority": Priority of aperiodic event, [1..6]
 // Param int32_t "IRQn": Interrupt request number that references the vector table. [0..155].
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t priority, int32_t IRQn) {
   // your code
+    return NO_ERROR;
 }
 
 // G8RTOS_Add_PeriodicEvent
@@ -252,7 +254,7 @@ sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t pr
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PThreadToAdd)(void), uint32_t period, uint32_t execution) {
     // your code
-    
+    return NO_ERROR;
 }
 
 // G8RTOS_KillThread
@@ -261,7 +263,8 @@ sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PThreadToAdd)(void), uint32_t pe
 sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
     IBit_State = StartCriticalSection();
     // Loop through tcb. If not found, return thread does not exist error. If there is only one thread running, don't kill it.
-   	
+   	EndCriticalSection(IBit_State);
+   	return NO_ERROR;
 }
 
 // G8RTOS_KillSelf
@@ -269,6 +272,7 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_KillSelf() {
     // your code
+    return CANNOT_KILL_LAST_THREAD;
 }
 
 // sleep

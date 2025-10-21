@@ -112,7 +112,7 @@ PDE_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-G8RTOS \
+G8RTOS/src \
 MiscFunctions/LinAlg/src \
 MiscFunctions/Shapes/src \
 MultimodDrivers/src \

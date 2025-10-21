@@ -58,17 +58,18 @@ void Thread0(void) {
     while(1)
     {
         // Share resources for I2C
-        //G8RTOS_WaitSemaphore(&sem_I2CA);
-        //int16_t accel_x_data = BMI160_AccelXGetResult();
-        //G8RTOS_SignalSemaphore(&sem_I2CA);
+        G8RTOS_WaitSemaphore(&sem_I2CA);
+        int16_t accel_x_data = BMI160_AccelXGetResult();
+        G8RTOS_SignalSemaphore(&sem_I2CA);
 
-        //float accel_x_data_norm = (float)((accel_x_data/65535.0f));
-        //if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
-        //LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
+        float accel_x_data_norm = (float)((accel_x_data/65535.0f));
+        if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
+        LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Accelerometer X Data is %d\n\n", 1);
+        UARTprintf("Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
+        
         sleep(300);
 
         //SysCtlDelay(delay_0_1_s);
