@@ -89,11 +89,11 @@ void LaunchpadLED_PWMSetDuty(LED_Color_t LED, float duty) {
 
     // Depending on chosen LED(s), adjust corresponding duty cycle of the PWM output
     if(LED == RED){
-        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, pulse_width);}
+        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, pulse_width);
+        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_7, pulse_width); 
+    }
     else if(LED == BLUE){
-        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_6, pulse_width);
-        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, 1);
-        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_7, 1);
+        PWMPulseWidthSet(PWM1_BASE, PWM_OUT_6, pulse_width);      
     } // SIX - SEVEN
     else if(LED == GREEN){PWMPulseWidthSet(PWM1_BASE, PWM_OUT_7, pulse_width);}
 

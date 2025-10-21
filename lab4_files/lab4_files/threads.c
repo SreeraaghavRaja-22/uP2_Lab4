@@ -50,6 +50,9 @@ uint8_t joystick_y = 1;
 // Kill a cube?
 uint8_t kill_cube = 0;
 
+// idle counter
+uint8_t idle_count = 0;
+
 /*********************************Global Variables**********************************/
 
 /*************************************Threads***************************************/
@@ -62,14 +65,15 @@ void Thread0(void) {
         int16_t accel_x_data = BMI160_AccelXGetResult();
         G8RTOS_SignalSemaphore(&sem_I2CA);
 
-        float accel_x_data_norm = (float)((accel_x_data/65535.0f));
-        if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
-        LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
+        //float accel_x_data_norm = (float)((accel_x_data/65535.0f));
+        //if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
+        //LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Accelerometer X Data is %d\n\n", accel_x_data);
+        UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
+
         G8RTOS_SignalSemaphore(&sem_UART);
-        
+
         sleep(300);
 
         //SysCtlDelay(delay_0_1_s);
@@ -89,13 +93,13 @@ void Thread1(void) {
         if(gyro_x_data_norm < 0){gyro_x_data_norm *= -1;}
 
         LaunchpadLED_PWMSetDuty(RED, gyro_x_data_norm);
-        // sleep(400);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Gyroscope X Data is %d\n\n", gyro_x_data);
+        UARTprintf("Thread 1: Gyroscope X Data is %d\n\n", gyro_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
-        SysCtlDelay(delay_0_1_s);
+        // SysCtlDelay(delay_0_1_s);
+        sleep(400);
     }
     
 
@@ -110,7 +114,7 @@ void Thread2(void) {
         G8RTOS_SignalSemaphore(&sem_I2CA);
         float opt_data_normalized = ((opt_data) / 20000.0f);
         // uint32_t opt_data_get = (uint32_t)opt_data_normalized;
-        LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
+        //LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
         // sleep(400);
 
         G8RTOS_WaitSemaphore(&sem_UART);
@@ -150,9 +154,11 @@ void Idle_Thread(void) {
     // need this to not get a deadlock or else you're cooked
     while(1)
     {
-        G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("%u: IDLING\n", kill_cube++);
-        G8RTOS_SignalSemaphore(&sem_UART);
+        G8RTOS_WaitSemaphore(&sem_SPI);
+        if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_GREEN));}
+        else{ST7789_Fill(ST7789_RED);}
+
+        G8RTOS_SignalSemaphore(&sem_SPI);
         // don't sleep idle thread
     }
 }

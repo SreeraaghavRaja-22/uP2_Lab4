@@ -153,7 +153,9 @@ void G8RTOS_Scheduler() {
     do
     {
         pt = pt -> nextTCB; 
-        if((pt->priority < max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
+
+        // if it's strictly less than, then if the only available thread is the same priority level then this fails 
+        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
         {
             max = pt->priority;
             bestPt = pt;
@@ -162,6 +164,7 @@ void G8RTOS_Scheduler() {
 
     }while(CurrentlyRunningThread != pt);
 
+    /* Unnecessary
     // prevents deadlocks 
     if(!(updateBest))
     {
@@ -172,6 +175,7 @@ void G8RTOS_Scheduler() {
 
         bestPt = pt;
     }
+    */
 
     // update the value of the CRT to the bestPT
     CurrentlyRunningThread = bestPt;

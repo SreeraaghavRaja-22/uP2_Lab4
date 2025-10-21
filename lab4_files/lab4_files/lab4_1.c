@@ -41,14 +41,17 @@ int main(void) {
 
     // Initializes the necessary peripherals.
     Multimod_Init();
+
+    ST7789_Fill(ST7789_WHITE);
    
     // Add threads, initialize semaphores here!
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
+    G8RTOS_InitSemaphore(&sem_SPI, SPI_Resources);
 
     G8RTOS_Init();
-    G8RTOS_AddThread(Thread0, 0, "Thread0");
-    //G8RTOS_AddThread(Thread1, 0, "Thread 1");
+    G8RTOS_AddThread(Thread0, 0, "Thread 0");
+    G8RTOS_AddThread(Thread1, 0, "Thread 1");
     //G8RTOS_AddThread(Thread2, 0, "Thread 2");
     //G8RTOS_AddThread(Thread3, 0, "Thread 3");
     //G8RTOS_AddThread(Thread4, 0, "Thread 4");z
