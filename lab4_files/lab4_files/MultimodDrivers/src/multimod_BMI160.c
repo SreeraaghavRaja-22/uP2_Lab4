@@ -5,10 +5,11 @@
 
 /************************************Includes***************************************/
 
-#include "multimod_BMI160.h"
+
 
 #include <stdint.h>
-#include "multimod_i2c.h"
+#include "../multimod_i2c.h"
+#include "../multimod_BMI160.h"
 
 /************************************Includes***************************************/
 

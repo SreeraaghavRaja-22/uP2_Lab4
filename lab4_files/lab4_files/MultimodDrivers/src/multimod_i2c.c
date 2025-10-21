@@ -4,8 +4,7 @@
 // Defines for I2C functions
 
 /************************************Includes***************************************/
-
-#include "multimod_i2c.h"
+#include "../multimod_i2c.h"
 
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>
@@ -13,7 +12,6 @@
 
 #include <inc/tm4c123gh6pm.h>
 #include <inc/hw_i2c.h>
-
 /************************************Includes***************************************/
 
 /********************************Public Functions***********************************/

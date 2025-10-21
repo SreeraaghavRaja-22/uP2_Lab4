@@ -5,7 +5,8 @@
 
 /************************************Includes***************************************/
 
-#include "multimod_joystick.h"
+
+#include "../multimod_joystick.h"
 
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>

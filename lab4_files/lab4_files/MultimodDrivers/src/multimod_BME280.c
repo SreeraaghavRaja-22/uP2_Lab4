@@ -8,10 +8,10 @@
 
 /************************************Includes***************************************/
 
-#include "multimod_BME280.h"
-
 #include <stdint.h>
-#include "multimod_i2c.h"
+
+#include "../multimod_i2c.h"
+#include "../multimod_BME280.h"
 
 /************************************Includes***************************************/
 

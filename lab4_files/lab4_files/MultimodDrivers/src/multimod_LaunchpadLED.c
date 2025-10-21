@@ -4,9 +4,7 @@
 // Defines for OPT3001 functions
 
 /************************************Includes***************************************/
-
-
-#include "multimod_LaunchpadLED.h"
+#include "../multimod_LaunchpadLED.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -20,6 +18,7 @@
 #include <driverlib/pwm.h>
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>
+
 
 
 

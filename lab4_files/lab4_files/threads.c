@@ -158,6 +158,7 @@ void Idle_Thread(void) {
     }
 }
 
+/*
 void CamMove_Thread(void) {
     uint32_t result;
     int16_t joystickX;
@@ -169,12 +170,12 @@ void CamMove_Thread(void) {
     world_camera_pos.y = 0;
     world_camera_pos.z = 60;
 
-    /*
+    
     Quat_t rot_quat, temp;
 
     float cr, sr, cp, sp, cy, sy;
     float mag;
-    */
+
 
     while(1) {
         result = G8RTOS_ReadFIFO(JOYSTICK_FIFO);
@@ -194,6 +195,9 @@ void CamMove_Thread(void) {
     }
 }
 
+*/
+
+/*
 void Cube_Thread(void) {
     cube_t cube;
 
@@ -247,24 +251,24 @@ void Cube_Thread(void) {
         camera_frame_offset.y = world_camera_frame_offset.y;
         camera_frame_offset.z = world_camera_frame_offset.z;
 
-        /*
+        
         view_rot.w = world_view_rot.w;
         view_rot.x = world_view_rot.x;
         view_rot.y = world_view_rot.y;
         view_rot.z = world_view_rot.z;
-        */
+        
 
         view_rot_inverse.w = world_view_rot_inverse.w;
         view_rot_inverse.x = world_view_rot_inverse.x;
         view_rot_inverse.y = world_view_rot_inverse.y;
         view_rot_inverse.z = world_view_rot_inverse.z;
 
-        /*
+        
         camera_frame_rot_offset.w = world_camera_frame_rot_offset.w;
         camera_frame_rot_offset.x = world_camera_frame_rot_offset.x;
         camera_frame_rot_offset.y = world_camera_frame_rot_offset.y;
         camera_frame_rot_offset.z = world_camera_frame_rot_offset.z;
-        */
+        
 
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < m+1; j++) {
@@ -312,6 +316,9 @@ void Cube_Thread(void) {
     }
 }
 
+*/
+
+/*
 void Read_Buttons() {
 
     while(1) {
@@ -326,29 +333,31 @@ void Read_JoystickPress() {
     }
 }
 
-
+*/
 
 /********************************Periodic Threads***********************************/
 
+/*
 void Print_WorldCoords(void) {
     UARTprintf("Cam Pos, X: %d, Y: %d, Z: %d\n", (int32_t) world_camera_pos.x, (int32_t)world_camera_pos.y, (int32_t)world_camera_pos.z);
 }
 
 void Get_Joystick(void) {
-	// your code
+	// your code}
 }
 
+*/
 /********************************Periodic Threads***********************************/
 
 
 /*******************************Aperiodic Threads***********************************/
 
+/*
 void GPIOE_Handler() {
-    // your code
-}
+    // your code}
 
 void GPIOD_Handler() {
-   	// your code
-}
+   	// your code}
+*/
 
 /*******************************Aperiodic Threads***********************************/
