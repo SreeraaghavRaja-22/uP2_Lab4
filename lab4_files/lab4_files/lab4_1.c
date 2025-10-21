@@ -47,12 +47,12 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
 
     G8RTOS_Init();
+    G8RTOS_AddThread(Thread0, 0, "Thread0");
+    //G8RTOS_AddThread(Thread1, 0, "Thread 1");
+    //G8RTOS_AddThread(Thread2, 0, "Thread 2");
+    //G8RTOS_AddThread(Thread3, 0, "Thread 3");
+    //G8RTOS_AddThread(Thread4, 0, "Thread 4");z
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE");
-    G8RTOS_AddThread(Thread0, 0, "Thread 0");
-    G8RTOS_AddThread(Thread1, 1, "Thread 1");
-    G8RTOS_AddThread(Thread2, 2, "Thread 2");
-    G8RTOS_AddThread(Thread3, 3, "Thread 3");
-    G8RTOS_AddThread(Thread4, 4, "Thread 4");
     G8RTOS_Launch();
 
     // spin - the RTOS will take over now

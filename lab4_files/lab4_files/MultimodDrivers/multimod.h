@@ -15,7 +15,7 @@
 static void Multimod_Init() {
     BMI160_Init();
     OPT3001_Init();
-    ST7789_Init();
+    // ST7789_Init();
     UART_Init();
     LaunchpadButtons_Init();
     LaunchpadLED_Init();

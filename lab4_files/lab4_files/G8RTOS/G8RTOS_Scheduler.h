@@ -57,7 +57,6 @@ extern tcb_t* CurrentlyRunningThread;
 
 extern void G8RTOS_Start();
 extern void PendSV_Handler();
-
 extern void SysTick_Handler();
 
 void G8RTOS_Init();

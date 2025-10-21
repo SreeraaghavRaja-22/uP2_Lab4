@@ -13,10 +13,13 @@ threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_types.h
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
+threads.obj: ../G8RTOS/G8RTOS_Scheduler.h
+threads.obj: ../G8RTOS/G8RTOS_Structures.h
+threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
+threads.obj: ../G8RTOS/G8RTOS_Structures.h
 threads.obj: ../MultimodDrivers/multimod.h
 threads.obj: ../MultimodDrivers/multimod_uart.h
 threads.obj: ../MultimodDrivers/multimod_i2c.h
-threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 threads.obj: C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h
 threads.obj: C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_gpio.h
 threads.obj: C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/i2c.h
@@ -74,13 +77,19 @@ C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 
 C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
+../G8RTOS/G8RTOS_Scheduler.h:
+
+../G8RTOS/G8RTOS_Structures.h:
+
+C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
+
+../G8RTOS/G8RTOS_Structures.h:
+
 ../MultimodDrivers/multimod.h:
 
 ../MultimodDrivers/multimod_uart.h:
 
 ../MultimodDrivers/multimod_i2c.h:
-
-C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
 C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h:
 

@@ -77,6 +77,7 @@ tcb_t* CurrentlyRunningThread;
 // Return: void
 void SysTick_Handler() {
     SystemTime++;
+
     tcb_t* currThread = CurrentlyRunningThread;
     ptcb_t* currentPeriodicThread = &pthreadControlBlocks[0];
 
@@ -86,12 +87,10 @@ void SysTick_Handler() {
     do
     {
         currThread = currThread -> nextTCB;
-        if(SystemTime >= currThread -> sleepCount && currThread -> asleep)
+        if((SystemTime >= currThread -> sleepCount))
         {
-            currThread -> sleepCount = 0;
             currThread -> asleep = false;
         }
-
     } while (CurrentlyRunningThread != currThread);
     
 
@@ -165,7 +164,7 @@ void G8RTOS_Scheduler() {
     // prevents deadlocks 
     if(!(updateBest))
     {
-        while(pt->threadName != "IDLE")
+        while(pt->priority != MIN_PRIORITY)
         {
             pt = pt->nextTCB;
         }
@@ -217,6 +216,9 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     threadStacks[NumberOfThreads][STACKSIZE-2] = (int32_t)threadToAdd;
     
     threadControlBlocks[NumberOfThreads].priority = priority;
+    threadControlBlocks[NumberOfThreads].blocked = 0; 
+    threadControlBlocks[NumberOfThreads].asleep = false; 
+    // threadControlBlocks[NumberOfThreads].sleepCount = 0;
 
     for(int i = 0; i < MAX_NAME_LENGTH; i++)
     {
@@ -227,6 +229,8 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     NumberOfThreads++; 
     
     EndCriticalSection(IBit_State);
+
+    return NO_ERROR;
 }
 
 // G8RTOS_Add_APeriodicEvent

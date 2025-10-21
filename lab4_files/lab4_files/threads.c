@@ -6,6 +6,7 @@
 /************************************Includes***************************************/
 
 #include "threads.h"
+#include "G8RTOS/G8RTOS_Scheduler.h"
 
 #include "./MultimodDrivers/multimod.h"
 #include "./MiscFunctions/Shapes/inc/cube.h"
@@ -57,15 +58,20 @@ void Thread0(void) {
     while(1)
     {
         // Share resources for I2C
-        G8RTOS_WaitSemaphore(&sem_I2CA);
-        int16_t accel_x_data = BMI160_AccelXGetResult();
-        G8RTOS_SignalSemaphore(&sem_I2CA);
+        //G8RTOS_WaitSemaphore(&sem_I2CA);
+        //int16_t accel_x_data = BMI160_AccelXGetResult();
+        //G8RTOS_SignalSemaphore(&sem_I2CA);
 
-        float accel_x_data_norm = (float)((accel_x_data/65535.0f));
-        if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
-        LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
+        //float accel_x_data_norm = (float)((accel_x_data/65535.0f));
+        //if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
+        //LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
-        SysCtlDelay(delay_0_1_s);
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Accelerometer X Data is %d\n\n", 1);
+        G8RTOS_SignalSemaphore(&sem_UART);
+        sleep(300);
+
+        //SysCtlDelay(delay_0_1_s);
     }   
 }
     
@@ -82,6 +88,12 @@ void Thread1(void) {
         if(gyro_x_data_norm < 0){gyro_x_data_norm *= -1;}
 
         LaunchpadLED_PWMSetDuty(RED, gyro_x_data_norm);
+        // sleep(400);
+
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Gyroscope X Data is %d\n\n", gyro_x_data);
+        G8RTOS_SignalSemaphore(&sem_UART);
+
         SysCtlDelay(delay_0_1_s);
     }
     
@@ -98,6 +110,11 @@ void Thread2(void) {
         float opt_data_normalized = ((opt_data) / 20000.0f);
         // uint32_t opt_data_get = (uint32_t)opt_data_normalized;
         LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
+        // sleep(400);
+
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Optometer Value is %d\n\n", opt_data);
+        G8RTOS_SignalSemaphore(&sem_UART);
         SysCtlDelay(delay_0_1_s);
     }
 }
@@ -109,6 +126,8 @@ void Thread3(void) {
         G8RTOS_WaitSemaphore(&sem_UART);
         if(LaunchpadButtons_ReadSW1()){UARTprintf("Button 1 Pressed!\n\n");}
         G8RTOS_SignalSemaphore(&sem_UART);
+        // sleep(400);
+
         SysCtlDelay(delay_0_1_s);
     }
 }
@@ -120,6 +139,8 @@ void Thread4(void) {
         G8RTOS_WaitSemaphore(&sem_UART);
         if(LaunchpadButtons_ReadSW2()){UARTprintf("Button 2 Pressed!\n\n");}
         G8RTOS_SignalSemaphore(&sem_UART);
+        // sleep(400);
+
         SysCtlDelay(delay_0_1_s);
     }
 }
@@ -129,8 +150,9 @@ void Idle_Thread(void) {
     while(1)
     {
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("IDLING");
+        UARTprintf("%u: IDLING\n", kill_cube++);
         G8RTOS_SignalSemaphore(&sem_UART);
+        // don't sleep idle thread
     }
 }
 

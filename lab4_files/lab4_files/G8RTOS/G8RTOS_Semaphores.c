@@ -97,7 +97,6 @@ void G8RTOS_SignalSemaphore(semaphore_t* s) {
         }
         // wake up thread with matching semaphore blocking it
         pt -> blocked = 0;
-        asm("nop");
     }
     EndCriticalSection(IBit_State);
 }
