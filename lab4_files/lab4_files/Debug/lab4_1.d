@@ -18,6 +18,7 @@ lab4_1.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbo
 lab4_1.obj: ../G8RTOS/G8RTOS_Structures.h
 lab4_1.obj: ../G8RTOS/G8RTOS_Semaphores.h
 lab4_1.obj: ../G8RTOS/G8RTOS_CriticalSection.h
+lab4_1.obj: ../G8RTOS/G8RTOS_IPC.h
 lab4_1.obj: ../MultimodDrivers/multimod.h
 lab4_1.obj: ../MultimodDrivers/multimod_uart.h
 lab4_1.obj: ../MultimodDrivers/multimod_i2c.h
@@ -75,6 +76,8 @@ C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 ../G8RTOS/G8RTOS_Semaphores.h:
 
 ../G8RTOS/G8RTOS_CriticalSection.h:
+
+../G8RTOS/G8RTOS_IPC.h:
 
 ../MultimodDrivers/multimod.h:
 

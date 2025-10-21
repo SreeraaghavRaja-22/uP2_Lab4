@@ -49,6 +49,9 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
     G8RTOS_InitSemaphore(&sem_SPI, SPI_Resources);
 
+    // initialize the FIFOs
+    G8RTOS_InitFIFO(0);
+
     G8RTOS_Init();
     G8RTOS_AddThread(Accel, 0, "Thread 0");
     G8RTOS_AddThread(Gyro, 0, "Thread 1");

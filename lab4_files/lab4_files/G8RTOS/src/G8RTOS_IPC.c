@@ -57,7 +57,7 @@ int32_t G8RTOS_InitFIFO(uint32_t FIFO_index) {
         return -1;
     }
     // initialize head and tail addresses
-    FIFOs[FIFO_index].head = FIFOs[FIFO_index].tail = &FIFOs[FIFO_index];
+    FIFOs[FIFO_index].head = FIFOs[FIFO_index].tail = &FIFOs[FIFO_index].buffer;
     // initialize lost data to 0
     FIFOs[FIFO_index].lostData = 0;
     // need to update the size of this semaphore
@@ -91,7 +91,7 @@ int32_t G8RTOS_ReadFIFO(uint32_t FIFO_index) {
     if(FIFOs[FIFO_index].head == &FIFOs[FIFO_index].buffer[FIFO_SIZE])
     {
         // set the value of head back to the start (wrap-around)
-        FIFOs[FIFO_index].head = &FIFOs[FIFO_index].buffer[0];
+        FIFOs[FIFO_index].head = &FIFOs[FIFO_index].buffer;
     }
     
     // signal that the FIFO has been used to read
@@ -114,11 +114,12 @@ int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
 
     if(FIFOs[FIFO_index].currentSize.count > FIFO_SIZE - 1)
     {
+        (FIFOs[FIFO_index].lostData)++;
         return -2;
     }
     else if(FIFO_index > FIFO_SIZE - 1)
     {
-        (FIFOs[FIFO_index].lostData)++;
+        
         return -1;
     }
 
@@ -128,7 +129,7 @@ int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
 
     if(FIFOs[FIFO_index].tail == &FIFOs[FIFO_index].buffer[FIFO_SIZE])
     {
-        FIFOs[FIFO_index].tail = &FIFOs[FIFO_index].buffer[0];
+        FIFOs[FIFO_index].tail = &FIFOs[FIFO_index].buffer;
     }
 
     G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
