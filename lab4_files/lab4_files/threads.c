@@ -65,15 +65,6 @@ void Thread0(void) {
         if(accel_x_data_norm < 0){accel_x_data_norm *= -1;}
         LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
-        
-        //LaunchpadLED_PWMSetDuty(GREEN, 1/PWM_Per);
-        //LaunchpadLED_PWMSetDuty(RED, 1/PWM_Per);
-
-        // Share resources for the UART
-        //G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Accelerometer X Data is %d\n\n", accel_x_data);
-        //G8RTOS_SignalSemaphore(&sem_UART);
-
         SysCtlDelay(delay_0_1_s);
     }   
 }
@@ -91,13 +82,6 @@ void Thread1(void) {
         if(gyro_x_data_norm < 0){gyro_x_data_norm *= -1;}
 
         LaunchpadLED_PWMSetDuty(RED, gyro_x_data_norm);
-        //LaunchpadLED_PWMSetDuty(GREEN, 1/PWM_Per);
-        //LaunchpadLED_PWMSetDuty(BLUE, 1/PWM_Per);
-
-        // Share resources for the UART
-        //G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Gyroscope X Data is %d\n\n", gyro_x_data);
-        //G8RTOS_SignalSemaphore(&sem_UART);
         SysCtlDelay(delay_0_1_s);
     }
     
@@ -114,14 +98,6 @@ void Thread2(void) {
         float opt_data_normalized = ((opt_data) / 20000.0f);
         // uint32_t opt_data_get = (uint32_t)opt_data_normalized;
         LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
-        //LaunchpadLED_PWMSetDuty(RED, 1/PWM_Per);
-        //LaunchpadLED_PWMSetDuty(BLUE, 1/PWM_Per);
-
-        //G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Optometer Value is %d\n\n", opt_data);
-        //UARTprintf("Normalized Optometer Data is %d\n\n", opt_data_get);
-        //G8RTOS_SignalSemaphore(&sem_UART);
-
         SysCtlDelay(delay_0_1_s);
     }
 }
