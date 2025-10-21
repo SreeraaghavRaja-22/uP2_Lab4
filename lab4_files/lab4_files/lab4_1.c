@@ -39,18 +39,15 @@ int main(void) {
     // sysclock
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
-
     // Initializes the necessary peripherals.
     Multimod_Init();
    
-    
-
     // Add threads, initialize semaphores here!
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
 
     G8RTOS_Init();
-    G8RTOS_AddThread(Idle_Thread,
+    G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE");
     G8RTOS_AddThread(Thread0, 0, "Thread 0");
     G8RTOS_AddThread(Thread1, 1, "Thread 1");
     G8RTOS_AddThread(Thread2, 2, "Thread 2");

@@ -138,6 +138,9 @@ void G8RTOS_Scheduler() {
     // define the max priority 
     uint8_t max = 255;
     
+    // make a variable to see if you got into the if statement 
+    bool updateBest = false;
+    
     // define two threads that are the thread and current thread that we're looking at
     tcb_t *pt; 
     tcb_t *bestPt;
@@ -154,9 +157,21 @@ void G8RTOS_Scheduler() {
         {
             max = pt->priority;
             bestPt = pt;
+            updateBest = true; 
         }
 
     }while(CurrentlyRunningThread != pt);
+
+    // prevents deadlocks 
+    if(!(updateBest))
+    {
+        while(pt->threadName != "IDLE")
+        {
+            pt = pt->nextTCB;
+        }
+
+        bestPt = pt;
+    }
 
     // update the value of the CRT to the bestPT
     CurrentlyRunningThread = bestPt;
