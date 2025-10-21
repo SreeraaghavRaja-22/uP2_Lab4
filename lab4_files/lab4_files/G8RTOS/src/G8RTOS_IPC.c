@@ -78,7 +78,7 @@ int32_t G8RTOS_ReadFIFO(uint32_t FIFO_index) {
     // wait for exclusive access
     G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].mutex);
     
-    // wait for an item to be available 
+    // wait for an item to be available (block if empty)
     G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].currentSize);
 
     // get the data (dereference head)
@@ -96,7 +96,7 @@ int32_t G8RTOS_ReadFIFO(uint32_t FIFO_index) {
     
     // signal that the FIFO has been used to read
     G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
-    G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
+    // G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
 
     return data;
 }
@@ -110,16 +110,20 @@ int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
     G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].mutex);
     
     // wait for an item to be available 
-    G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].currentSize);
+    // G8RTOS_WaitSemaphore(&FIFOs[FIFO_index].currentSize);
 
     if(FIFOs[FIFO_index].currentSize.count > FIFO_SIZE - 1)
     {
+        // increment lost data
         (FIFOs[FIFO_index].lostData)++;
+
+        // overwrite old data 
+        *(FIFOs[FIFO_index].tail) = data;
         return -2;
     }
-    else if(FIFO_index > FIFO_SIZE - 1)
+    else if(FIFO_index > MAX_NUMBER_OF_FIFOS - 1)
     {
-        
+        // out of bounds error
         return -1;
     }
 

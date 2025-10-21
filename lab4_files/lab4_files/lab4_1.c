@@ -56,8 +56,8 @@ int main(void) {
     G8RTOS_AddThread(Accel, 0, "Thread 0");
     G8RTOS_AddThread(Gyro, 0, "Thread 1");
     G8RTOS_AddThread(Opto, 50, "Thread 2");
-    //G8RTOS_AddThread(Thread3, 0, "Thread 3");
-    //G8RTOS_AddThread(Thread4, 0, "Thread 4");
+    G8RTOS_AddThread(FIFOProducer, 10, "FIFPROD");
+    G8RTOS_AddThread(FIFOConsumer, 12, "FIFCONS");
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE");
     G8RTOS_Launch();
 

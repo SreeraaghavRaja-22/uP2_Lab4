@@ -7,6 +7,7 @@
 
 #include "threads.h"
 #include "G8RTOS/G8RTOS_Scheduler.h"
+#include "G8RTOS/G8RTOS_IPC.h"
 
 #include "./MultimodDrivers/multimod.h"
 #include "./MiscFunctions/Shapes/inc/cube.h"
@@ -130,12 +131,14 @@ void Opto(void) {
 void FIFOProducer(void) {
     while(1)
     {
-        G8RTOS_WaitSemaphore(&sem_UART);
-        if(LaunchpadButtons_ReadSW1()){UARTprintf("Button 1 Pressed!\n\n");}
-        G8RTOS_SignalSemaphore(&sem_UART);
-        // sleep(400);
+        uint32_t data = 0x6769;
+        G8RTOS_WriteFIFO(0, data);
 
-        SysCtlDelay(delay_0_1_s);
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("FIFO1 Put Data %u\n\n", data);
+        G8RTOS_SignalSemaphore(&sem_UART);
+        
+        sleep(400);
     }
 }
 
