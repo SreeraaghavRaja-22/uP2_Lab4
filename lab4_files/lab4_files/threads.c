@@ -57,7 +57,7 @@ uint8_t idle_count = 0;
 
 /*************************************Threads***************************************/
 // Thread0, reads accel_x data, adjusts BLUE led duty cycle.
-void Thread0(void) {
+void Accel(void) {
     while(1)
     {
         // Share resources for I2C
@@ -74,7 +74,7 @@ void Thread0(void) {
 
         G8RTOS_SignalSemaphore(&sem_UART);
 
-        sleep(300);
+        sleep(500);
 
         //SysCtlDelay(delay_0_1_s);
     }   
@@ -82,7 +82,7 @@ void Thread0(void) {
     
 
 // Thread1, reads gyro_x data, adjusts RED led duty cycle.
-void Thread1(void) {
+void Gyro(void) {
     while(1)
     {
         G8RTOS_WaitSemaphore(&sem_I2CA);
@@ -99,33 +99,35 @@ void Thread1(void) {
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // SysCtlDelay(delay_0_1_s);
-        sleep(400);
+        sleep(700);
     }
     
 
 }
 
 // Thread2, reads optical sensor values, adjusts GREEN led duty cycle.
-void Thread2(void) {
+void Opto(void) {
     while(1)
     {   
         G8RTOS_WaitSemaphore(&sem_I2CA);
         uint32_t opt_data = OPT3001_GetResult();
         G8RTOS_SignalSemaphore(&sem_I2CA);
+
         float opt_data_normalized = ((opt_data) / 20000.0f);
-        // uint32_t opt_data_get = (uint32_t)opt_data_normalized;
-        //LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
-        // sleep(400);
+        uint32_t opt_data_get = (uint32_t)opt_data_normalized;
+        LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Optometer Value is %d\n\n", opt_data);
+        UARTprintf("Thread 2: Optometer Value is %d\n\n", opt_data);
         G8RTOS_SignalSemaphore(&sem_UART);
-        SysCtlDelay(delay_0_1_s);
+
+        // sleep for less time for fun and to test blocking and priority
+        sleep(700);
     }
 }
 
 // Thread3, reads and output button 1 status using polling
-void Thread3(void) {
+void FIFOProducer(void) {
     while(1)
     {
         G8RTOS_WaitSemaphore(&sem_UART);
@@ -138,7 +140,7 @@ void Thread3(void) {
 }
 
 // Thread4, reads and output button 2 status using polling
-void Thread4(void) {
+void FIFOConsumer(void) {
     while(1)
     {
         G8RTOS_WaitSemaphore(&sem_UART);

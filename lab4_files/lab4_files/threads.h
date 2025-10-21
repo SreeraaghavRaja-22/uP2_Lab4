@@ -24,11 +24,11 @@ semaphore_t sem_SPI;
 
 /********************************Thread Functions***********************************/
 
-void Thread0(void);
-void Thread1(void);
-void Thread2(void);
-void Thread3(void);
-void Thread4(void);
+void Accel(void);
+void Gyro(void);
+void Opto(void);
+void FIFOProducer(void);
+void FIFOConsumer(void);
 void Idle_Thread(void);
 void CamMove_Thread(void);
 void Cube_Thread(void);
