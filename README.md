@@ -19,4 +19,6 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Figure out how to not brick the code when having multiple threads UART at once
     - Fixed the priority of the FIFOs to make them lower than the other threads
   - Figure out how to fix the timing for the consumer thread
-  - Fix weird bug with the code where the value decrements by 15 for no reason (drops because the head cycles) -- not a bug
+    - It works even if the producer has the same sleep time
+  - Fix weird bug with the code where the value decrements by 15 for no reason drops because the head cycles?
+    - This is not a bug because the head pointer cycles -- could still be a bug

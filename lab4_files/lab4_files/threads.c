@@ -96,7 +96,7 @@ void Gyro(void) {
         LaunchpadLED_PWMSetDuty(RED, gyro_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Thread 1: Gyroscope X Data is %d\n\n", gyro_x_data);
+        UARTprintf("Thread 1: Gyroscope X Data is %d\n\n", gyro_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // SysCtlDelay(delay_0_1_s);
