@@ -29,6 +29,7 @@ void Gyro(void);
 void Opto(void);
 void FIFOProducer(void);
 void FIFOConsumer(void);
+void FIFOConsumer2(void);
 void Idle_Thread(void);
 void CamMove_Thread(void);
 void Cube_Thread(void);

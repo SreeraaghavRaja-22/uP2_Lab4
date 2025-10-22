@@ -17,6 +17,7 @@ threads.obj: ../G8RTOS/G8RTOS_Scheduler.h
 threads.obj: ../G8RTOS/G8RTOS_Structures.h
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 threads.obj: ../G8RTOS/G8RTOS_Structures.h
+threads.obj: ../G8RTOS/G8RTOS_IPC.h
 threads.obj: ../MultimodDrivers/multimod.h
 threads.obj: ../MultimodDrivers/multimod_uart.h
 threads.obj: ../MultimodDrivers/multimod_i2c.h
@@ -84,6 +85,8 @@ C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
 ../G8RTOS/G8RTOS_Structures.h:
+
+../G8RTOS/G8RTOS_IPC.h:
 
 ../MultimodDrivers/multimod.h:
 

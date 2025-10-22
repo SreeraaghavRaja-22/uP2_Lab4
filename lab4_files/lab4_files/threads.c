@@ -54,6 +54,9 @@ uint8_t kill_cube = 0;
 // idle counter
 uint8_t idle_count = 0;
 
+// FIFO vals
+uint32_t data = 0;
+
 /*********************************Global Variables**********************************/
 
 /*************************************Threads***************************************/
@@ -71,8 +74,7 @@ void Accel(void) {
         //LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
-
+        //UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         sleep(500);
@@ -96,7 +98,7 @@ void Gyro(void) {
         LaunchpadLED_PWMSetDuty(RED, gyro_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Thread 1: Gyroscope X Data is %d\n\n", gyro_x_data);
+        //UARTprintf("Thread 1: Gyroscope X Data is %d\n\n", gyro_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // SysCtlDelay(delay_0_1_s);
@@ -119,7 +121,7 @@ void Opto(void) {
         LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Thread 2: Optometer Value is %d\n\n", opt_data);
+        //UARTprintf("Thread 2: Optometer Value is %d\n\n", opt_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // sleep for less time for fun and to test blocking and priority
@@ -131,14 +133,15 @@ void Opto(void) {
 void FIFOProducer(void) {
     while(1)
     {
-        uint32_t data = 0x6769;
-        G8RTOS_WriteFIFO(0, data);
-
+        data++;
+        // uint32_t senData = 0x6769;
+        int32_t bruh = G8RTOS_WriteFIFO(0, data);
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("FIFO1 Put Data %u\n\n", data);
+        UARTprintf("FIFO 0: Put Data of value %u into FIFO\n\n", data);
+        UARTprintf("The wait function returns %u\n\n", bruh);
         G8RTOS_SignalSemaphore(&sem_UART);
-        
-        sleep(400);
+
+        sleep(100);
     }
 }
 
@@ -146,12 +149,23 @@ void FIFOProducer(void) {
 void FIFOConsumer(void) {
     while(1)
     {
+        uint32_t recData = G8RTOS_ReadFIFO(0);
         G8RTOS_WaitSemaphore(&sem_UART);
-        if(LaunchpadButtons_ReadSW2()){UARTprintf("Button 2 Pressed!\n\n");}
+        UARTprintf("FIFO 0 Consumer 1 Receives value: %u\n\n", recData);
         G8RTOS_SignalSemaphore(&sem_UART);
-        // sleep(400);
+        sleep(700);
+    }
+}
 
-        SysCtlDelay(delay_0_1_s);
+void FIFOConsumer2(void)
+{
+    while(1)
+    {
+        uint32_t recData2 = G8RTOS_ReadFIFO(0);
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("FIFO 0 Consumer 2 Receives value: %u\n\n", recData2);
+        G8RTOS_SignalSemaphore(&sem_UART);
+        sleep(800);
     }
 }
 
@@ -162,7 +176,6 @@ void Idle_Thread(void) {
         G8RTOS_WaitSemaphore(&sem_SPI);
         if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_GREEN));}
         else{ST7789_Fill(ST7789_RED);}
-
         G8RTOS_SignalSemaphore(&sem_SPI);
         // don't sleep idle thread
     }
