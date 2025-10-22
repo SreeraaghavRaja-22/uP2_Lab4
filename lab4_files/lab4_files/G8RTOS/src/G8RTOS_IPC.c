@@ -129,11 +129,15 @@ int32_t G8RTOS_WriteFIFO(uint32_t FIFO_index, uint32_t data) {
             FIFOs[FIFO_index].tail = &FIFOs[FIFO_index].buffer[0];
         }
 
+        G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
+        G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
         return -2;
     }
     else if(FIFO_index > MAX_NUMBER_OF_FIFOS - 1)
     {
         // out of bounds error
+        G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].currentSize);
+        G8RTOS_SignalSemaphore(&FIFOs[FIFO_index].mutex);
         return -1;
     }
 

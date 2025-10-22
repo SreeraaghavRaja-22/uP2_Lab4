@@ -62,7 +62,7 @@ uint32_t data = 0;
 /*************************************Threads***************************************/
 // Thread0, reads accel_x data, adjusts BLUE led duty cycle.
 void Accel(void) {
-    while(1)
+    for(;;)
     {
         // Share resources for I2C
         G8RTOS_WaitSemaphore(&sem_I2CA);
@@ -74,19 +74,17 @@ void Accel(void) {
         //LaunchpadLED_PWMSetDuty(BLUE, accel_x_data_norm);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
+        UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         sleep(500);
-
-        //SysCtlDelay(delay_0_1_s);
     }   
 }
     
 
 // Thread1, reads gyro_x data, adjusts RED led duty cycle.
 void Gyro(void) {
-    while(1)
+    for(;;)
     {
         G8RTOS_WaitSemaphore(&sem_I2CA);
         int16_t gyro_x_data = BMI160_GyroXGetResult();
@@ -104,13 +102,11 @@ void Gyro(void) {
         // SysCtlDelay(delay_0_1_s);
         sleep(700);
     }
-    
-
 }
 
 // Thread2, reads optical sensor values, adjusts GREEN led duty cycle.
 void Opto(void) {
-    while(1)
+    for(;;)
     {   
         G8RTOS_WaitSemaphore(&sem_I2CA);
         uint32_t opt_data = OPT3001_GetResult();
@@ -121,7 +117,7 @@ void Opto(void) {
         LaunchpadLED_PWMSetDuty(GREEN, opt_data_normalized);
 
         G8RTOS_WaitSemaphore(&sem_UART);
-        //UARTprintf("Thread 2: Optometer Value is %d\n\n", opt_data);
+        UARTprintf("Thread 2: Optometer Value is %d\n\n", opt_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // sleep for less time for fun and to test blocking and priority
@@ -131,23 +127,23 @@ void Opto(void) {
 
 // Thread3, reads and output button 1 status using polling
 void FIFOProducer(void) {
-    while(1)
+    for(;;)
     {
         data++;
         // uint32_t senData = 0x6769;
         int32_t bruh = G8RTOS_WriteFIFO(0, data);
         G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("FIFO 0: Put Data of value %u into FIFO\n\n", data);
-        UARTprintf("The wait function returns %u\n\n", bruh);
+        //UARTprintf("FIFO 0: Put Data of value %u into FIFO\n\n", data);
+        //UARTprintf("The write function returns %u\n\n", bruh);
         G8RTOS_SignalSemaphore(&sem_UART);
 
-        sleep(100);
+        sleep(700);
     }
 }
 
 // Thread4, reads and output button 2 status using polling
 void FIFOConsumer(void) {
-    while(1)
+    for(;;)
     {
         uint32_t recData = G8RTOS_ReadFIFO(0);
         G8RTOS_WaitSemaphore(&sem_UART);
@@ -159,19 +155,19 @@ void FIFOConsumer(void) {
 
 void FIFOConsumer2(void)
 {
-    while(1)
+    for(;;)
     {
         uint32_t recData2 = G8RTOS_ReadFIFO(0);
         G8RTOS_WaitSemaphore(&sem_UART);
         UARTprintf("FIFO 0 Consumer 2 Receives value: %u\n\n", recData2);
         G8RTOS_SignalSemaphore(&sem_UART);
-        sleep(800);
+        sleep(700);
     }
 }
 
 void Idle_Thread(void) {
     // need this to not get a deadlock or else you're cooked
-    while(1)
+    for(;;)
     {
         G8RTOS_WaitSemaphore(&sem_SPI);
         if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_GREEN));}
