@@ -170,8 +170,8 @@ void Idle_Thread(void) {
     for(;;)
     {
         G8RTOS_WaitSemaphore(&sem_SPI);
-        if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_GREEN));}
-        else{ST7789_Fill(ST7789_RED);}
+        if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_ORANGE));}
+        else{ST7789_Fill(ST7789_BLUE);}
         G8RTOS_SignalSemaphore(&sem_SPI);
         // don't sleep idle thread
     }

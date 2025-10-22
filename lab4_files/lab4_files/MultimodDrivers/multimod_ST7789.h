@@ -84,10 +84,11 @@
 
 // COLORS
 #define ST7789_BLACK                0x0000
-#define ST7789_RED                  0x001F
-#define ST7789_BLUE                 0xF800
+#define ST7789_BLUE                 0x001F
+#define ST7789_RED                  0xF800
 #define ST7789_GREEN                0x07E0
 #define ST7789_WHITE                0xFFFF
+#define ST7789_ORANGE               0xFD80
 
 /*************************************Defines***************************************/
 
