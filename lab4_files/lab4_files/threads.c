@@ -79,7 +79,7 @@ void Accel(void) {
         // bruh
         G8RTOS_KillSelf();
 
-        sleep(500);
+        // not exiting the for loop after the kill
     }   
 }
     
