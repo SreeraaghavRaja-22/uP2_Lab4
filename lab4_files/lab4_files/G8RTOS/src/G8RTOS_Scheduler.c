@@ -150,8 +150,8 @@ void G8RTOS_Scheduler() {
     // check if the current thread is alive
     if(!CurrentlyRunningThread->isAlive)
     {
-        // this could work but what if the next thread is linked to itself
-        pt = CurrentlyRunningThread; //temporary thread;
+        // this could work but what if the next thread is linked to itself?
+        pt = pt->nextTCB; 
     }
 
     // have a do while loop so that we can at least go through the loop once 
@@ -161,7 +161,7 @@ void G8RTOS_Scheduler() {
         pt = pt -> nextTCB; 
 
         // if it's strictly less than, then if the only available thread is the same priority level then this fails 
-        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0) && (pt->isAlive))
+        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
         {
             max = pt->priority;
             bestPt = pt;
