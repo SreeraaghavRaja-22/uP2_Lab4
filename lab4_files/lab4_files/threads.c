@@ -76,10 +76,11 @@ void Accel(void) {
         UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
-        // bruh
-        G8RTOS_KillSelf();
+        // Commit Seppuku
+        //G8RTOS_KillSelf();
 
         // not exiting the for loop after the kill
+        sleep(700);
     }   
 }
     
@@ -102,9 +103,9 @@ void Gyro(void) {
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // SysCtlDelay(delay_0_1_s);
+        G8RTOS_KillThread(32);
+        //G8RTOS_KillSelf();
         sleep(700);
-
-        
     }
 }
 
