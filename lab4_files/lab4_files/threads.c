@@ -62,8 +62,7 @@ uint32_t data = 0;
 /*************************************Threads***************************************/
 // Thread0, reads accel_x data, adjusts BLUE led duty cycle.
 void Accel(void) {
-    for(;;)
-    {
+    for(;;){
         // Share resources for I2C
         G8RTOS_WaitSemaphore(&sem_I2CA);
         int16_t accel_x_data = BMI160_AccelXGetResult();
@@ -76,6 +75,9 @@ void Accel(void) {
         G8RTOS_WaitSemaphore(&sem_UART);
         UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
+
+        // bruh
+        G8RTOS_KillSelf();
 
         sleep(500);
     }   
@@ -101,6 +103,8 @@ void Gyro(void) {
 
         // SysCtlDelay(delay_0_1_s);
         sleep(700);
+
+        
     }
 }
 
@@ -173,6 +177,10 @@ void Idle_Thread(void) {
         if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_ORANGE));}
         else{ST7789_Fill(ST7789_BLUE);}
         G8RTOS_SignalSemaphore(&sem_SPI);
+
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("I like Banana Milk\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
         // don't sleep idle thread
     }
 }

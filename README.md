@@ -22,3 +22,5 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
     - It works even if the producer has the same sleep time
   - Fix weird bug with the code where the value decrements by 15 for no reason drops because the head cycles?
     - This is not a bug because the head pointer cycles -- could still be a bug
+- Part C:
+  - How do I account for the dead threads between alive threads?

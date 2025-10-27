@@ -16,7 +16,7 @@ MultimodDrivers/src/multimod_uart.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-a
 MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/inc/tm4c123gh6pm.h
 MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h
 MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_gpio.h
-MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/uartstdio.h
+MultimodDrivers/src/multimod_uart.obj: C:/School/Fall_25/uP2/uP2_Labs/uP2_Lab4/uP2_Lab4/lab4_files/lab4_files/uartstdio.h
 MultimodDrivers/src/multimod_uart.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdarg.h
 MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/gpio.h
 MultimodDrivers/src/multimod_uart.obj: C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/uart.h
@@ -55,7 +55,7 @@ C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h:
 
 C:/ti/TivaWare_C_Series-2.2.0.295/inc/hw_gpio.h:
 
-C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/uartstdio.h:
+C:/School/Fall_25/uP2/uP2_Labs/uP2_Lab4/uP2_Lab4/lab4_files/lab4_files/uartstdio.h:
 
 C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdarg.h:
 

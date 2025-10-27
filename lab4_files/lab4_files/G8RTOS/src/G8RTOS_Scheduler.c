@@ -66,6 +66,8 @@ uint32_t SystemTime;
 
 tcb_t* CurrentlyRunningThread;
 
+volatile uint8_t aliveCount = 0;
+
 /********************************Public Variables***********************************/
 
 
@@ -188,7 +190,7 @@ void G8RTOS_Scheduler() {
 // Param uint8_t "priority": priority from [0, 255].
 // Param char* "name": character array containing the thread name.
 // Return: sched_ErrCode_t
-sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name) {
+sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name, threadID_t ID) {
     IBit_State = StartCriticalSection();
     
     // check that num_threads == max_threads {return error code }
@@ -223,12 +225,18 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     threadControlBlocks[NumberOfThreads].priority = priority;
     threadControlBlocks[NumberOfThreads].blocked = 0; 
     threadControlBlocks[NumberOfThreads].asleep = false; 
+    threadControlBlocks[NumberOfThreads].ThreadID = ID;
+
+
+    threadControlBlocks[NumberOfThreads].isAlive = true;
+
+    // increment the aliveCount value -- useful for KillThread
+    aliveCount++;
+
     // threadControlBlocks[NumberOfThreads].sleepCount = 0;
 
-    for(int i = 0; i < MAX_NAME_LENGTH; i++)
-    {
-        threadControlBlocks[NumberOfThreads].threadName[i] = name[i];
-    }
+    // set the thread name 
+    strcpy(threadControlBlocks[NumberOfThreads].threadName, name);
 
     // increment the number of threads at the end
     NumberOfThreads++; 
@@ -267,15 +275,74 @@ sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PThreadToAdd)(void), uint32_t pe
 sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
     IBit_State = StartCriticalSection();
     // Loop through tcb. If not found, return thread does not exist error. If there is only one thread running, don't kill it.
+    tcb_t* pt = CurrentlyRunningThread; 
+   
+    do{
+        pt = pt->nextTCB;
+        if(pt->ThreadID == threadID){
+            if(aliveCount > 1){
+
+                // kill the currently running thread
+                pt->isAlive = false; 
+
+                // decrement the count for the number of alive Threads 
+                aliveCount--;
+
+                // fix the linked list logic here 
+                (pt->previousTCB)->nextTCB = pt->nextTCB;
+                (pt->nextTCB)->previousTCB = pt->previousTCB;
+
+                // exit function as soon as the thread is killed
+                if(pt = CurrentlyRunningThread){
+                    EndCriticalSection(IBit_State);
+                    HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
+                }
+                else{
+                    EndCriticalSection(IBit_State);
+                    return NO_ERROR; 
+                }
+            } 
+            else if(aliveCount == 1){
+                EndCriticalSection(IBit_State);
+                return CANNOT_KILL_LAST_THREAD;
+            }
+        }
+    }while(pt != CurrentlyRunningThread);
+
+    // thread not found if the loop finishes without exiting the function in some way
    	EndCriticalSection(IBit_State);
-   	return NO_ERROR;
+   	return THREAD_DOES_NOT_EXIST;
 }
 
 // G8RTOS_KillSelf
 // Kills currently running thread.
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_KillSelf() {
-    // your code
+    
+    IBit_State = StartCriticalSection(); 
+
+    if(aliveCount > 1){
+        // kill current thread
+        CurrentlyRunningThread -> isAlive = false; 
+
+        // remove the thread from the linkedlist 
+        (CurrentlyRunningThread->previousTCB)->nextTCB = CurrentlyRunningThread->nextTCB; 
+        (CurrentlyRunningThread->nextTCB)->previousTCB = CurrentlyRunningThread->previousTCB;
+
+        // Update the currently running thread now that we remove the value from the context
+        CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
+
+        aliveCount--;
+
+        // end critical section and end function with no errors
+        EndCriticalSection(IBit_State);
+
+        // context switch 
+        HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
+        return NO_ERROR;
+    }
+
+    EndCriticalSection(IBit_State);
     return CANNOT_KILL_LAST_THREAD;
 }
 

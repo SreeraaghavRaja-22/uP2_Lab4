@@ -64,7 +64,7 @@ int32_t G8RTOS_Launch();
 void G8RTOS_Scheduler();
 
 
-sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name);
+sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name, threadID_t ID);
 sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t priority, int32_t IRQn);
 sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PthreadToAdd)(void), uint32_t period, uint32_t execution);
 sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID);
