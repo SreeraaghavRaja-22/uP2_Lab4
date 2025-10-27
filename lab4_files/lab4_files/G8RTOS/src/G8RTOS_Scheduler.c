@@ -148,7 +148,7 @@ void G8RTOS_Scheduler() {
     pt = CurrentlyRunningThread; 
 
     // check if the current thread is alive
-    if(!CurrentlyRunningThread->isAlive)
+    while(!(pt->isAlive))
     {
         // this could work but what if the next thread is linked to itself?
         pt = pt->nextTCB; 
@@ -287,6 +287,7 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
                 // exit function as soon as the thread is killed
                 if(pt = CurrentlyRunningThread){
                     EndCriticalSection(IBit_State);
+                    return NO_ERROR;
                 }
                 else{
                     EndCriticalSection(IBit_State);
@@ -312,7 +313,6 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
 sched_ErrCode_t G8RTOS_KillSelf() {
     G8RTOS_KillThread(CurrentlyRunningThread->ThreadID);
     HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
-    return NO_ERROR;
 }
 
 // sleep
