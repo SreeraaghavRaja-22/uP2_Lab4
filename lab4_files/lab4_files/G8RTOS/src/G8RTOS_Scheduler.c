@@ -157,14 +157,14 @@ void G8RTOS_Scheduler() {
         pt = pt -> nextTCB; 
 
         // if it's strictly less than, then if the only available thread is the same priority level then this fails 
-        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
+        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0) && (pt->isAlive))
         {
             max = pt->priority;
             bestPt = pt;
             updateBest = true; 
         }
 
-    }while(CurrentlyRunningThread != pt);
+    }while(CurrentlyRunningThread != pt); 
 
     /* Unnecessary
     // prevents deadlocks 
@@ -326,11 +326,11 @@ sched_ErrCode_t G8RTOS_KillSelf() {
         CurrentlyRunningThread -> isAlive = false; 
 
         // remove the thread from the linkedlist 
-        (CurrentlyRunningThread->previousTCB)->nextTCB = CurrentlyRunningThread->nextTCB; 
-        (CurrentlyRunningThread->nextTCB)->previousTCB = CurrentlyRunningThread->previousTCB;
+        //(CurrentlyRunningThread->previousTCB)->nextTCB = CurrentlyRunningThread->nextTCB; 
+        //(CurrentlyRunningThread->nextTCB)->previousTCB = CurrentlyRunningThread->previousTCB;
 
         // Update the currently running thread now that we remove the value from the context
-        CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
+        //CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
 
         aliveCount--;
 
