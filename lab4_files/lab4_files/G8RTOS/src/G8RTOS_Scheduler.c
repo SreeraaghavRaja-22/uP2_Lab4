@@ -147,6 +147,13 @@ void G8RTOS_Scheduler() {
     // set the thread we're looking at to the currently running thread
     pt = CurrentlyRunningThread; 
 
+    // check if the current thread is alive
+    if(!CurrentlyRunningThread->isAlive)
+    {
+        // this could work but what if the next thread is linked to itself
+        pt = CurrentlyRunningThread; //temporary thread;
+    }
+
     // have a do while loop so that we can at least go through the loop once 
     // this loops through all the threads and finds the next one highest priority one that is neither asleep or blocked
     do
@@ -272,13 +279,14 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
                 aliveCount--;
 
                 // fix the linked list logic here 
-                (pt->previousTCB)->nextTCB = pt->nextTCB;
-                (pt->nextTCB)->previousTCB = pt->previousTCB;
+                tcb_t* prev = pt->previousTCB; 
+                tcb_t* next = pt->nextTCB; 
+                prev->nextTCB = next; 
+                next->previousTCB = prev; 
 
                 // exit function as soon as the thread is killed
                 if(pt = CurrentlyRunningThread){
                     EndCriticalSection(IBit_State);
-                    HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
                 }
                 else{
                     EndCriticalSection(IBit_State);
@@ -300,33 +308,11 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
 // G8RTOS_KillSelf
 // Kills currently running thread.
 // Return: sched_ErrCode_t
+// Get this to work, the issue is that changing the CRT's values will prevent it from updating in the sche
 sched_ErrCode_t G8RTOS_KillSelf() {
-    
-    IBit_State = StartCriticalSection(); 
-
-    if(aliveCount > 1){
-        // kill current thread
-        CurrentlyRunningThread -> isAlive = false; 
-
-        // remove the thread from the linkedlist 
-        //(CurrentlyRunningThread->previousTCB)->nextTCB = CurrentlyRunningThread->nextTCB; 
-        //(CurrentlyRunningThread->nextTCB)->previousTCB = CurrentlyRunningThread->previousTCB;
-
-        // Update the currently running thread now that we remove the value from the context
-        //CurrentlyRunningThread = CurrentlyRunningThread -> nextTCB;
-
-        aliveCount--;
-
-        // end critical section and end function with no errors
-        EndCriticalSection(IBit_State);
-
-        // context switch 
-        HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
-        return NO_ERROR;
-    }
-
-    EndCriticalSection(IBit_State);
-    return CANNOT_KILL_LAST_THREAD;
+    G8RTOS_KillThread(CurrentlyRunningThread->ThreadID);
+    HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
+    return NO_ERROR;
 }
 
 // sleep

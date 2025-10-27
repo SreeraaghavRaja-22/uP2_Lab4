@@ -26,3 +26,5 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - I accounted for alive and dead threads
   - I never actually need to update the linked list for the TCB now though because of how I designed my scheduler
     - This could pose a future issue
+    - could add an else condition in linked list where if the thread is dead, we update the previous and next pointers
+      - could be dangerous

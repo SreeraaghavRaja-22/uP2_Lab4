@@ -104,8 +104,8 @@ void Gyro(void) {
 
         // SysCtlDelay(delay_0_1_s);
         G8RTOS_KillThread(32);
-        //G8RTOS_KillSelf();
-        sleep(700);
+        G8RTOS_KillSelf();
+        //sleep(700);
     }
 }
 
