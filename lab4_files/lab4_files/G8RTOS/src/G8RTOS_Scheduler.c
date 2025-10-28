@@ -141,18 +141,20 @@ void G8RTOS_Scheduler() {
     uint8_t max = 255;
     
     // define two threads that are the thread and current thread that we're looking at
-    tcb_t *pt; 
-    tcb_t *bestPt;
+    tcb_t* pt; 
+    tcb_t* bestPt;
+    tcb_t* temp;
 
     // set the thread we're looking at to the currently running thread
     pt = CurrentlyRunningThread; 
 
     // check if the current thread is alive
-    while(!(pt->isAlive))
+    while(!pt->isAlive)
     {
-        // this could work but what if the next thread is linked to itself?
-        pt = pt->nextTCB; 
+        pt=pt->nextTCB;
     }
+    
+    temp = pt; 
 
     // have a do while loop so that we can at least go through the loop once 
     // this loops through all the threads and finds the next one highest priority one that is neither asleep or blocked
@@ -167,7 +169,7 @@ void G8RTOS_Scheduler() {
             bestPt = pt;
         }
 
-    }while(CurrentlyRunningThread != pt); 
+    }while(temp != pt); 
 
     // update the value of the CRT to the bestPT
     CurrentlyRunningThread = bestPt;
@@ -283,16 +285,10 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
                 tcb_t* next = pt->nextTCB; 
                 prev->nextTCB = next; 
                 next->previousTCB = prev; 
-
-                // exit function as soon as the thread is killed
-                if(pt = CurrentlyRunningThread){
-                    EndCriticalSection(IBit_State);
-                    return NO_ERROR;
-                }
-                else{
-                    EndCriticalSection(IBit_State);
-                    return NO_ERROR; 
-                }
+                
+                // end critical section
+                EndCriticalSection(IBit_State);
+                return NO_ERROR; 
             } 
             else if(aliveCount == 1){
                 EndCriticalSection(IBit_State);

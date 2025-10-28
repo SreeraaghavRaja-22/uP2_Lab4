@@ -61,7 +61,6 @@ int main(void) {
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Launch();
 
-
     // spin - the RTOS will take over now
     while(1);
 }
