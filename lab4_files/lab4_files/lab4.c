@@ -42,7 +42,7 @@ int main(void) {
     // Initializes the necessary peripherals.
     Multimod_Init();
 
-    ST7789_Fill(ST7789_WHITE);
+    //ST7789_Fill(ST7789_WHITE);
    
     // Add threads, initialize semaphores here!
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
@@ -53,13 +53,16 @@ int main(void) {
     G8RTOS_InitFIFO(0);
     G8RTOS_Init();
     G8RTOS_Add_APeriodicEvent(SW1_ISR, 2, INT_GPIOF);
+    //G8RTOS_Add_APeriodicEvent(SW2_ISR, 2, INT_GPIOF);
     G8RTOS_AddThread(Accel, 0, "Accel", 32);
     G8RTOS_AddThread(Gyro, 1, "Gyro", 64);
+
     // G8RTOS_AddThread(Opto, 2, "Opto", 96);
     // G8RTOS_AddThread(FIFOProducer, 3, "FIFPROD", 100);
     // G8RTOS_AddThread(FIFOConsumer, 5, "FIFCONS", 101);
     // G8RTOS_AddThread(FIFOConsumer2, 5, "FIFOCONS2", 133);
     G8RTOS_AddThread(SW1_Event_Handler, 0, "SW1E", 20);
+    G8RTOS_AddThread(SW2_Event_Handler, 1, "SW2E", 343);
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Launch();
 

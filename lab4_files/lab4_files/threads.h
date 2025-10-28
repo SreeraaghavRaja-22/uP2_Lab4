@@ -40,6 +40,7 @@ void Get_Joystick(void);
 void GPIOE_Handler();
 void GPIOD_Handler();
 void SW1_ISR();
+void SW2_ISR();
 void SW1_Event_Handler(); 
 void SW2_Event_Handler();
 

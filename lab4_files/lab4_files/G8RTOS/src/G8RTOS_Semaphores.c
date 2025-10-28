@@ -71,6 +71,7 @@ void G8RTOS_WaitSemaphore(semaphore_t* s) {
 
         // context switch
         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
+        return;
     }
     // enable interrupts
     EndCriticalSection(IBit_State);

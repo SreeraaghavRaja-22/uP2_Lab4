@@ -192,18 +192,39 @@ void SW1_ISR(){
 
     // set the flag to true
     SW1Pressed = true; 
-
-    G8RTOS_WaitSemaphore(&sem_UART);
-    UARTprintf("SW 1 loves Deco*27\n\n");
-    G8RTOS_SignalSemaphore(&sem_UART);
 }
 
 void SW1_Event_Handler(){
     for(;;){
         if(SW1Pressed){
-            SW1Pressed = false; 
+            SW1Pressed = false;
             G8RTOS_WaitSemaphore(&sem_UART);
             UARTprintf("SW 1 loves Deco*27\n\n");
+            G8RTOS_SignalSemaphore(&sem_UART);
+        }
+        sleep(20);
+    }
+}
+
+
+volatile bool SW2Pressed = false; 
+
+void SW2_ISR(){
+    // clear the interrupt flag
+    GPIOIntClear(GPIO_PORTF_BASE, GPIO_INT_PIN_0);
+
+    // set the flag to true
+    SW2Pressed = true; 
+
+
+}
+
+void SW2_Event_Handler(){
+    for(;;){
+        if(SW2Pressed){
+            SW2Pressed = false;
+            G8RTOS_WaitSemaphore(&sem_UART);
+            UARTprintf("SW 2 loves Deco*27\n\n");
             G8RTOS_SignalSemaphore(&sem_UART);
         }
         sleep(20);
