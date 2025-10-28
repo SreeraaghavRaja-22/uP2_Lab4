@@ -86,6 +86,12 @@ void SysTick_Handler() {
     // loop through all the periodic threads and execute them appropriately (if their time is now)
 
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
+    while(!currThread->isAlive)
+    {
+        currThread = currThread->nextTCB;
+    }
+    tcb_t* temp = currThread;
+
     do
     {
         if((SystemTime >= currThread -> sleepCount) && (currThread -> sleepCount != 0)) // != or >= works but it's uint32_t so != should be chill
@@ -94,7 +100,7 @@ void SysTick_Handler() {
             currThread -> sleepCount = 0; 
         }
         currThread = currThread -> nextTCB;
-    } while (CurrentlyRunningThread != currThread);
+    } while (temp != currThread);
     
 
     HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
@@ -219,7 +225,7 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     // increment the aliveCount value -- useful for KillThread
     aliveCount++;
 
-    // threadControlBlocks[NumberOfThreads].sleepCount = 0;
+    threadControlBlocks[NumberOfThreads].sleepCount = 0;
 
     // set the thread name 
     strcpy(threadControlBlocks[NumberOfThreads].threadName, name);

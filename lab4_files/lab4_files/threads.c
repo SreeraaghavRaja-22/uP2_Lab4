@@ -76,8 +76,6 @@ void Accel(void) {
         UARTprintf("Thread 0: Accelerometer X Data is %d\n\n", accel_x_data);
         G8RTOS_SignalSemaphore(&sem_UART);
 
-        // Commit Seppuku
-        //G8RTOS_KillSelf();
 
         // not exiting the for loop after the kill
         sleep(700);
@@ -204,14 +202,9 @@ void SW1_Event_Handler(){
             UARTprintf("SW 1 loves Deco*27\n\n");
             G8RTOS_SignalSemaphore(&sem_UART);
         }
-        sleep(300);
+        sleep(20);
     }
 }
-
-
-
-
-
 
 
 /*

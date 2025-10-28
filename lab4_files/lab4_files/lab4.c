@@ -52,13 +52,13 @@ int main(void) {
     // initialize the FIFOs
     G8RTOS_InitFIFO(0);
     G8RTOS_Init();
-    G8RTOS_AddThread(Accel, 0, "Thread 0", 32);
-    G8RTOS_AddThread(Gyro, 1, "Thread 1", 64);
-    // G8RTOS_AddThread(Opto, 2, "Thread 2", 96);
+    G8RTOS_AddThread(Accel, 0, "Accel", 32);
+    G8RTOS_AddThread(Gyro, 1, "Gyro", 64);
+    // G8RTOS_AddThread(Opto, 2, "Opto", 96);
     // G8RTOS_AddThread(FIFOProducer, 3, "FIFPROD", 100);
     // G8RTOS_AddThread(FIFOConsumer, 5, "FIFCONS", 101);
     // G8RTOS_AddThread(FIFOConsumer2, 5, "FIFOCONS2", 133);
-    G8RTOS_AddThread(SW1_Event_Handler, 0, "SW1 Thread", 20);
+    G8RTOS_AddThread(SW1_Event_Handler, 0, "SW1E", 20);
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Add_APeriodicEvent(SW1_ISR, 2, INT_GPIOF);
     G8RTOS_Launch();
