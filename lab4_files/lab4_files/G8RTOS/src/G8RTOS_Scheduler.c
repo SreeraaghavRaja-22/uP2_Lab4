@@ -268,7 +268,7 @@ sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t pr
 // Param uint32_t "execution": When to execute the periodic thread
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PThreadToAdd)(void), uint32_t period, uint32_t execution) {
-    // your code
+    //
     return NO_ERROR;
 }
 
