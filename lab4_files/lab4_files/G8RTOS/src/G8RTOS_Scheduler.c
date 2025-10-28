@@ -34,6 +34,8 @@ static uint32_t threadStacks[MAX_THREADS][STACKSIZE];
 // Periodic Event Threads - array to hold pertinent information for each thread
 static ptcb_t pthreadControlBlocks[MAX_PTHREADS];
 
+static uint32_t vectors[156];
+
 // Current Number of Threads currently in the scheduler
 static uint32_t NumberOfThreads;
 
@@ -104,15 +106,12 @@ void SysTick_Handler() {
 // Initializes the RTOS by initializing system time.
 // Return: void
 void G8RTOS_Init() {
-    uint32_t newVTORTable = 0x20000000;
-    uint32_t* newTable = (uint32_t*) newVTORTable;
-    uint32_t* oldTable = (uint32_t*) 0;
+    //uint32_t newVTORTable = 0x20000000;
+    //uint32_t* newTable = (uint32_t*) newVTORTable;
+    //uint32_t* oldTable = (uint32_t*) 0;
 
-    for (int i = 0; i < 155; i++) {
-        newTable[i] = oldTable[i];
-    }
 
-    HWREG(NVIC_VTABLE) = newVTORTable;
+    //HWREG(NVIC_VTABLE) = newVTORTable;
 
     SystemTime = 0;
     NumberOfThreads = 0;
@@ -153,7 +152,7 @@ void G8RTOS_Scheduler() {
     {
         pt=pt->nextTCB;
     }
-    
+
     temp = pt; 
 
     // have a do while loop so that we can at least go through the loop once 
@@ -244,7 +243,19 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
 // Param int32_t "IRQn": Interrupt request number that references the vector table. [0..155].
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t priority, int32_t IRQn) {
-  // your code
+    IBit_State = StartCriticalSection();
+    // check for the appropriate interrupt levels and the specific priority of the thread
+    
+    if(IRQn > 155 || IRQn < 1){
+        return IRQn_INVALID;
+    }
+    if(priority < 1 || priority > 7){
+        return HWI_PRIORITY_INVALID;
+    }
+    
+    IntRegister(IRQn, AthreadToAdd);
+    IntPrioritySet(IRQn, priority);
+    
     return NO_ERROR;
 }
 
@@ -324,14 +335,16 @@ void sleep(uint32_t durationMS) {
 // Gets current thread ID.
 // Return: threadID_t
 threadID_t G8RTOS_GetThreadID(void) {
-    return CurrentlyRunningThread->ThreadID;        //Returns the thread ID
+    // Returns the thread ID
+    return CurrentlyRunningThread->ThreadID;        
 }
 
 // G8RTOS_GetNumberOfThreads
 // Gets number of threads.
 // Return: uint32_t
 uint32_t G8RTOS_GetNumberOfThreads(void) {
-    return NumberOfThreads;         //Returns the number of threads
+    // Returns the number of threads
+    return NumberOfThreads;         
 }
 
 
