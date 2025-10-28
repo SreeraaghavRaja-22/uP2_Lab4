@@ -40,6 +40,9 @@ static uint32_t NumberOfThreads;
 // Current Number of Periodic Threads currently in the scheduler
 static uint32_t NumberOfPThreads;
 
+// Keep Track of the Total Number of Threads Created
+static uint32_t ThreadsCreated;
+
 
 
 /********************************Private Variables**********************************/
@@ -98,7 +101,7 @@ void SysTick_Handler() {
         currPThread = currPThread->nextPTCB;
     }while(currPThread != &ptcbs[0]);
     */
-   
+
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
     while(!currThread->isAlive)
     {
@@ -132,6 +135,7 @@ void G8RTOS_Init() {
     SystemTime = 0;
     NumberOfThreads = 0;
     NumberOfPThreads = 0;
+    ThreadsCreated = 0;
 }
 
 // G8RTOS_Launch
@@ -197,6 +201,40 @@ void G8RTOS_Scheduler() {
 // Param char* "name": character array containing the thread name.
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name, threadID_t ID) {
+    
+    uint32_t aliveIndices[3] = {MAX_THREADS-1, MAX_THREADS-1, MAX_THREADS-1};
+    // find the index of the first available dead thread to overwrite
+    for(int i = MAX_THREADS-1; i>=0; i++){        
+        if(!(threadControlBlocks[i].isAlive) && i < aliveIndices[0]){
+            aliveIndices[0] = i;
+        }
+        
+        if((threadControlBlocks[i].isAlive) && i >= aliveIndices[0] && i <= aliveIndices[2]){
+            aliveIndices[1] = i;
+        }
+
+        if((threadControlBlocks[i].isAlive) && i >= aliveIndices[1]){
+            aliveIndices[2] = i;
+        }
+    }
+
+     for(int i = 0; i<MAX_THREADS; i++){
+        // first available good pointer
+        if(!(threadControlBlocks[i].isAlive && i > aliveIndices[0])){
+            aliveIndices[1] = i;
+            break;
+        }
+    }
+
+     for(int i = 0; i<MAX_THREADS; i++){
+        // first available good pointer
+        if(!(threadControlBlocks[i].isAlive) && i > aliveIndices[1]){
+            aliveIndices[2] = i;
+            break;
+        }
+    }
+    
+
     IBit_State = StartCriticalSection();
     
     // check that num_threads == max_threads {return error code }
@@ -246,6 +284,7 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
 
     // increment the number of threads at the end
     NumberOfThreads++; 
+    ThreadsCreated++;
     
     EndCriticalSection(IBit_State);
 
