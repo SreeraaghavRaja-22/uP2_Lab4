@@ -44,6 +44,8 @@ void SW1_ISR();
 void SW2_ISR();
 void SW1_Event_Handler(); 
 void SW2_Event_Handler();
+void ChildA_Thread(); 
+void ChildB_Thread();
 
 
 

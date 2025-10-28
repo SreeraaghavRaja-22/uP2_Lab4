@@ -32,7 +32,7 @@ static tcb_t threadControlBlocks[MAX_THREADS];
 static uint32_t threadStacks[MAX_THREADS][STACKSIZE];
 
 // Periodic Event Threads - array to hold pertinent information for each thread
-static ptcb_t pthreadControlBlocks[MAX_PTHREADS];
+static ptcb_t ptcbs[MAX_PTHREADS];
 
 // Current Number of Threads currently in the scheduler
 static uint32_t NumberOfThreads;
@@ -40,7 +40,6 @@ static uint32_t NumberOfThreads;
 // Current Number of Periodic Threads currently in the scheduler
 static uint32_t NumberOfPThreads;
 
-static uint32_t threadCounter = 0;
 
 
 /********************************Private Variables**********************************/
@@ -81,10 +80,25 @@ void SysTick_Handler() {
     SystemTime++;
 
     tcb_t* currThread = CurrentlyRunningThread;
-    ptcb_t* currentPeriodicThread = &pthreadControlBlocks[0];
+    ptcb_t* currPThread = &ptcbs[0];
 
+    /*
     // loop through all the periodic threads and execute them appropriately (if their time is now)
+    do{
+        
+        if(SystemTime >= currPThread->executeTime){
+            // call the handler (calls the function execution)
+            currPThread->handler();
+            // update current time 
+            currPThread->currentTime = SystemTime;
+            // update the execute time with the period (time between each thread) + current time (could handle the offset too)
+            currPThread->executeTime = currPThread->currentTime + currPThread->period;
+        }
 
+        currPThread = currPThread->nextPTCB;
+    }while(currPThread != &ptcbs[0]);
+    */
+   
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
     while(!currThread->isAlive)
     {
@@ -163,7 +177,7 @@ void G8RTOS_Scheduler() {
         pt = pt -> nextTCB; 
 
         // if it's strictly less than, then if the only available thread is the same priority level then this fails 
-        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0))
+        if((pt->priority <= max) && ((pt->blocked) == 0) && (pt->sleepCount == 0) && (pt->isAlive))
         {
             max = pt->priority;
             bestPt = pt;
@@ -278,7 +292,25 @@ sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t pr
 // Param uint32_t "execution": When to execute the periodic thread
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_Add_PeriodicEvent(void (*PThreadToAdd)(void), uint32_t period, uint32_t execution) {
-    //
+    if(NumberOfPThreads >= MAX_PTHREADS){
+        return THREAD_LIMIT_REACHED;
+    }
+
+    // setting the doubly linked linked list for Periodic Threads
+    ptcbs[NumberOfPThreads].nextPTCB = &ptcbs[0];
+    ptcbs[0].previousPTCB = &ptcbs[NumberOfPThreads];
+
+    if(NumberOfPThreads != 0){
+        ptcbs[NumberOfPThreads-1].nextPTCB = &ptcbs[NumberOfPThreads];
+        ptcbs[NumberOfPThreads].previousPTCB = &ptcbs[NumberOfPThreads-1];
+    }
+
+    ptcbs[NumberOfPThreads].handler = PThreadToAdd;
+    ptcbs[NumberOfPThreads].period = period; 
+    ptcbs[NumberOfPThreads].executeTime = execution;
+
+    NumberOfPThreads++;
+
     return NO_ERROR;
 }
 

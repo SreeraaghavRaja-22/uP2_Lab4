@@ -203,8 +203,13 @@ void SW1_Event_Handler(){
             //SW1Pressed = false;
             G8RTOS_WaitSemaphore(&sem_SW1);
             G8RTOS_WaitSemaphore(&sem_UART);
+            //uint32_t status = GPIOIntStatus(GPIO_PORTF_BASE, 1);
+            //UARTprintf("Interrupt Status is %u\n\n", status);
             UARTprintf("SW 1 loves Deco*27\n\n");
             G8RTOS_SignalSemaphore(&sem_UART);
+
+           G8RTOS_AddThread(ChildA_Thread, 50, "Amaterasu", 23);
+           // G8RTOS_AddThread(ChildB_Thread, 55, "Susanoo", 24);
         //}
         sleep(20);
     }
@@ -232,6 +237,24 @@ void SW2_Event_Handler(){
             G8RTOS_SignalSemaphore(&sem_UART);
         }
         sleep(20);
+    }
+}
+
+void ChildA_Thread(){
+    for(;;){
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("How has suffering become so endless!\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
+        G8RTOS_KillSelf();
+    }
+}
+
+void ChildB_Thread(){
+    for(;;){
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("I'm just a man!!!\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
+        G8RTOS_KillSelf();
     }
 }
 
