@@ -173,14 +173,14 @@ void Idle_Thread(void) {
     // need this to not get a deadlock or else you're cooked
     for(;;)
     {
-        G8RTOS_WaitSemaphore(&sem_SPI);
-        if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_ORANGE));}
-        else{ST7789_Fill(ST7789_BLUE);}
-        G8RTOS_SignalSemaphore(&sem_SPI);
+        //G8RTOS_WaitSemaphore(&sem_SPI);
+        //if(idle_count++ % 2 == 0){ST7789_Fill((ST7789_ORANGE));}
+        //else{ST7789_Fill(ST7789_BLUE);}
+        //G8RTOS_SignalSemaphore(&sem_SPI);
 
-        G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("I like Banana Milk\n\n");
-        G8RTOS_SignalSemaphore(&sem_UART);
+        //G8RTOS_WaitSemaphore(&sem_UART);
+        //UARTprintf("I like Banana Milk\n\n");
+        //G8RTOS_SignalSemaphore(&sem_UART);
         // don't sleep idle thread
     }
 }

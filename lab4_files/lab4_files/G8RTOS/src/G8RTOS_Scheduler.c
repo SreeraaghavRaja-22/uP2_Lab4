@@ -88,12 +88,12 @@ void SysTick_Handler() {
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
     do
     {
-        currThread = currThread -> nextTCB;
         if((SystemTime >= currThread -> sleepCount) && (currThread -> sleepCount != 0)) // != or >= works but it's uint32_t so != should be chill
         {
             currThread -> asleep = false;
             currThread -> sleepCount = 0; 
         }
+        currThread = currThread -> nextTCB;
     } while (CurrentlyRunningThread != currThread);
     
 
@@ -107,8 +107,6 @@ void G8RTOS_Init() {
     //uint32_t newVTORTable = 0x20000000;
     //uint32_t* newTable = (uint32_t*) newVTORTable;
     //uint32_t* oldTable = (uint32_t*) 0;
-
-
     //HWREG(NVIC_VTABLE) = newVTORTable;
 
     SystemTime = 0;
@@ -121,7 +119,6 @@ void G8RTOS_Init() {
 // Return: error codes, 0 if none
 int32_t G8RTOS_Launch() {
     InitSysTick();
-
     CurrentlyRunningThread = &threadControlBlocks[0];
     IntPrioritySet(FAULT_SYSTICK, 0xE0);
     IntPrioritySet(FAULT_PENDSV, 0xE0);

@@ -40,6 +40,10 @@ void LaunchpadButtons_Init() {
     // Use SW1 & SW2, configure as inputs.
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_0);
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);
+
+    GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE);
+
+    GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_4);
 }
 
 // LaunchpadButtons_ReadSW1
