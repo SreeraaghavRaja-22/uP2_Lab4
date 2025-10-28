@@ -40,17 +40,20 @@ void LaunchpadButtons_Init() {
     // Use SW1 & SW2, configure as inputs.
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, (GPIO_PIN_0 | GPIO_PIN_4));
 
-    // disable interrupts
-    GPIOIntDisable(GPIO_PORTF_BASE, INT_GPIOF);
+    // Disable interrupts
+    GPIOIntDisable(GPIO_PORTF_BASE, (GPIO_INT_PIN_0 | GPIO_INT_PIN_4));
 
     // Clear interrupts 
-    GPIOIntClear(GPIO_PORTF_BASE, INT_GPIOF);
+    GPIOIntClear(GPIO_PORTF_BASE, (GPIO_INT_PIN_0 | GPIO_INT_PIN_4));
 
-    // set interrupt type to falling edge
-    GPIOIntTypeSet(GPIO_PORTF_BASE, (GPIO_PIN_4 | GPIO_PIN_0), GPIO_FALLING_EDGE);
+    // Set interrupt type to falling edge
+    GPIOIntTypeSet(GPIO_PORTF_BASE, (GPIO_PIN_0 | GPIO_PIN_4), GPIO_FALLING_EDGE);
 
-    // enable the GPIO Interrupt
-    GPIOIntEnable(GPIO_PORTF_BASE, INT_GPIOF);
+    // Enable the GPIO Interrupt
+    GPIOIntEnable(GPIO_PORTF_BASE, (GPIO_INT_PIN_0 | GPIO_INT_PIN_4));
+
+    // Enable global interrupts
+    // IntEnable(INT_GPIOF);
 }
 
 // LaunchpadButtons_ReadSW1

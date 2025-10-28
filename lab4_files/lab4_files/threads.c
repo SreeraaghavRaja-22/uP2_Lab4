@@ -101,9 +101,9 @@ void Gyro(void) {
         G8RTOS_SignalSemaphore(&sem_UART);
 
         // SysCtlDelay(delay_0_1_s);
-        G8RTOS_KillThread(32);
-        G8RTOS_KillSelf();
-        //sleep(700);
+        //G8RTOS_KillThread(32);
+        //G8RTOS_KillSelf();
+        sleep(700);
     }
 }
 
@@ -192,6 +192,10 @@ void SW1_ISR(){
 
     // set the flag to true
     SW1Pressed = true; 
+
+    G8RTOS_WaitSemaphore(&sem_UART);
+    UARTprintf("SW 1 loves Deco*27\n\n");
+    G8RTOS_SignalSemaphore(&sem_UART);
 }
 
 void SW1_Event_Handler(){
