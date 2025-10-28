@@ -202,38 +202,26 @@ void G8RTOS_Scheduler() {
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name, threadID_t ID) {
     
-    uint32_t aliveIndices[3] = {MAX_THREADS-1, MAX_THREADS-1, MAX_THREADS-1};
+    uint32_t aliveIndices[3] = {MAX_THREADS-1, MAX_THREADS-1, 0};
+
     // find the index of the first available dead thread to overwrite
-    for(int i = MAX_THREADS-1; i>=0; i++){        
+    for(int i = MAX_THREADS-1; i>=0; i--){        
         if(!(threadControlBlocks[i].isAlive) && i < aliveIndices[0]){
             aliveIndices[0] = i;
         }
         
-        if((threadControlBlocks[i].isAlive) && i >= aliveIndices[0] && i <= aliveIndices[2]){
+        if((threadControlBlocks[i].isAlive) && i < aliveIndices[1]){
             aliveIndices[1] = i;
         }
+    }    
 
-        if((threadControlBlocks[i].isAlive) && i >= aliveIndices[1]){
-            aliveIndices[2] = i;
+    for(int i = 0; i < MAX_THREADS; i++){
+        if(threadControlBlocks[i].isAlive){
+            if(i > aliveIndices[2]){
+                aliveIndices[2] = i;
+            }
         }
     }
-
-     for(int i = 0; i<MAX_THREADS; i++){
-        // first available good pointer
-        if(!(threadControlBlocks[i].isAlive && i > aliveIndices[0])){
-            aliveIndices[1] = i;
-            break;
-        }
-    }
-
-     for(int i = 0; i<MAX_THREADS; i++){
-        // first available good pointer
-        if(!(threadControlBlocks[i].isAlive) && i > aliveIndices[1]){
-            aliveIndices[2] = i;
-            break;
-        }
-    }
-    
 
     IBit_State = StartCriticalSection();
     
