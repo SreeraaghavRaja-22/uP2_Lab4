@@ -34,8 +34,6 @@ static uint32_t threadStacks[MAX_THREADS][STACKSIZE];
 // Periodic Event Threads - array to hold pertinent information for each thread
 static ptcb_t pthreadControlBlocks[MAX_PTHREADS];
 
-static uint32_t vectors[156];
-
 // Current Number of Threads currently in the scheduler
 static uint32_t NumberOfThreads;
 
@@ -246,16 +244,25 @@ sched_ErrCode_t G8RTOS_Add_APeriodicEvent(void (*AthreadToAdd)(void), uint8_t pr
     IBit_State = StartCriticalSection();
     // check for the appropriate interrupt levels and the specific priority of the thread
     
-    if(IRQn > 155 || IRQn < 1){
+    if(IRQn > MAX_INTERRUPTS || IRQn < 1){
+        EndCriticalSection(IBit_State);
         return IRQn_INVALID;
     }
-    if(priority < 1 || priority > 7){
+    if(priority < 1 || priority > OSINT_PRIORITY){
+        EndCriticalSection(IBit_State);
         return HWI_PRIORITY_INVALID;
     }
     
+    // register the interrupt
     IntRegister(IRQn, AthreadToAdd);
-    IntPrioritySet(IRQn, priority);
     
+    // set the priority 
+    IntPrioritySet(IRQn, priority);
+
+    // enable the interrupt 
+    IntEnable(IRQn);
+
+    EndCriticalSection(IBit_State);
     return NO_ERROR;
 }
 

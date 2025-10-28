@@ -141,7 +141,6 @@ void FIFOProducer(void) {
         //UARTprintf("FIFO 0: Put Data of value %u into FIFO\n\n", data);
         //UARTprintf("The write function returns %u\n\n", bruh);
         G8RTOS_SignalSemaphore(&sem_UART);
-
         sleep(700);
     }
 }
@@ -185,6 +184,31 @@ void Idle_Thread(void) {
         // don't sleep idle thread
     }
 }
+
+// testing the aperiodic threads
+volatile bool SW1Pressed = false;
+
+void SW1_ISR(){
+    // clear the interrupt flag
+    GPIOIntClear(GPIO_PORTF_BASE, GPIO_INT_PIN_4);
+
+    // set the flag to true
+    SW1Pressed = true; 
+}
+
+void SW1_Event_Handler(){
+    for(;;){
+        if(SW1Pressed){
+            SW1Pressed = false; 
+            G8RTOS_WaitSemaphore(&sem_UART);
+            UARTprintf("SW 1 loves Deco*27\n\n");
+            G8RTOS_SignalSemaphore(&sem_UART);
+        }
+        sleep(300);
+    }
+}
+
+
 
 
 

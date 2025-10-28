@@ -24,6 +24,7 @@
 #define STACKSIZE           512
 #define OSINT_PRIORITY      7
 #define MIN_PRIORITY        255
+#define MAX_INTERRUPTS      155
 
 /*************************************Defines***************************************/
 
