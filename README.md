@@ -24,7 +24,8 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
     - This is not a bug because the head pointer cycles -- could still be a bug
 - Part C:
   - I accounted for alive and dead threads
-  - I never actually need to update the linked list for the TCB now though because of how I designed my scheduler
-    - This could pose a future issue
-    - could add an else condition in linked list where if the thread is dead, we update the previous and next pointers
-      - could be dangerous
+  - I accounted for the linked list change in the scheduler (for killself function)
+  - Aperiodic threads only require you to use intRegister as that moves the Vector table from Flash to SRAM
+  - Switches are affected by the TFT display, so when testing the switches, turn off everything related to the display
+  - I'm cooked
+  
