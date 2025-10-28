@@ -16,6 +16,7 @@
 #define UART_Resources 1
 #define I2C_Resources 1
 #define SPI_Resources 1
+#define SW_Resources 1
 /*************************************Defines***************************************/
 
 /******************************Data Type Definitions********************************/

@@ -48,6 +48,7 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
     G8RTOS_InitSemaphore(&sem_SPI, SPI_Resources);
+    G8RTOS_InitSemaphore(&sem_SW1, SW_Resources);
 
     // initialize the FIFOs
     G8RTOS_InitFIFO(0);

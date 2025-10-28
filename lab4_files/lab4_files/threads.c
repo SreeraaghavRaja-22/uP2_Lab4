@@ -191,17 +191,21 @@ void SW1_ISR(){
     GPIOIntClear(GPIO_PORTF_BASE, GPIO_INT_PIN_4);
 
     // set the flag to true
-    SW1Pressed = true; 
+    //SW1Pressed = true; 
+
+    // signal semaphore for SW1 to let the scheduler know that it's available
+    G8RTOS_SignalSemaphore(&sem_SW1);
 }
 
 void SW1_Event_Handler(){
     for(;;){
-        if(SW1Pressed){
-            SW1Pressed = false;
+        //if(SW1Pressed){
+            //SW1Pressed = false;
+            G8RTOS_WaitSemaphore(&sem_SW1);
             G8RTOS_WaitSemaphore(&sem_UART);
             UARTprintf("SW 1 loves Deco*27\n\n");
             G8RTOS_SignalSemaphore(&sem_UART);
-        }
+        //}
         sleep(20);
     }
 }

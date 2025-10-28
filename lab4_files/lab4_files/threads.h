@@ -17,6 +17,7 @@
 semaphore_t sem_UART;
 semaphore_t sem_I2CA;
 semaphore_t sem_SPI;
+semaphore_t sem_SW1;
 
 
 /***********************************Semaphores**************************************/
