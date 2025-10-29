@@ -477,7 +477,6 @@ void GPIOE_Handler() {
     G8RTOS_SignalSemaphore(&sem_MMB);
 }
 
-volatile uint8_t bruh = 0;
 
 void ButtonsTest(){
     for(;;){
@@ -486,13 +485,11 @@ void ButtonsTest(){
         uint8_t data = MultimodButtons_Get();
         G8RTOS_SignalSemaphore(&sem_I2CA);
 
-        bruh++;
-
         uint8_t SW1P, SW2P, SW3P, SW4P = 0;
         if(data & SW1){
             uint8_t SW1P = 1;
         }
-        else if(data&SW2){
+        else if(data & SW2){
             uint8_t SW2P = 1;
         }
         else if(data&SW3){
@@ -504,10 +501,9 @@ void ButtonsTest(){
 
         G8RTOS_WaitSemaphore(&sem_UART);
         UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
-        UARTprintf("Output: %u\n\n", bruh);
+        UARTprintf("Data: %u\n\n", data);
         G8RTOS_SignalSemaphore(&sem_UART);
     }
- 
 }
 
 /*
