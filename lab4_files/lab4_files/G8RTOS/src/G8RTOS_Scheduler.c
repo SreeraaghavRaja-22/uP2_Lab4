@@ -88,21 +88,21 @@ void SysTick_Handler() {
     tcb_t* currThread = CurrentlyRunningThread;
     ptcb_t* currPThread = &ptcbs[0];
 
-    
-    // loop through all the periodic threads and execute them appropriately (if their time is now)
-    do{
+   
+    // // loop through all the periodic threads and execute them appropriately (if their time is now)
+    // do{
         
-        if(SystemTime >= currPThread->executeTime){
-            // call the handler (calls the function execution)
-            currPThread->handler();
-            // update current time 
-            currPThread->currentTime = SystemTime;
-            // update the execute time with the period (time between each thread) + current time (could handle the offset too)
-            currPThread->executeTime = currPThread->currentTime + currPThread->period;
-        }
+    //     if(SystemTime >= currPThread->executeTime){
+    //         // call the handler (calls the function execution)
+    //         currPThread->handler();
+    //         // update current time 
+    //         currPThread->currentTime = SystemTime;
+    //         // update the execute time with the period (time between each thread) + current time (could handle the offset too)
+    //         currPThread->executeTime = currPThread->currentTime + currPThread->period;
+    //     }
 
-        currPThread = currPThread->nextPTCB;
-    }while(currPThread != &ptcbs[0]);
+    //     currPThread = currPThread->nextPTCB;
+    // }while(currPThread != &ptcbs[0]);
     
 
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now

@@ -276,16 +276,6 @@ void PThread2(){
 
 
 
-void ButtonsTest(){
-    G8RTOS_WaitSemaphore(&sem_MMB);
-    G8RTOS_WaitSemaphore(&sem_I2CA);
-    uint8_t data = MultimodButtons_Get();
-    G8RTOS_SignalSemaphore(&sem_I2CA);
-
-    G8RTOS_WaitSemaphore(&sem_UART);
-    UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", data&SW1, data&SW2, data&SW3, data&SW4);
-    G8RTOS_SignalSemaphore(&sem_UART);
-}
 
 /*
 void CamMove_Thread(void) {
@@ -483,8 +473,41 @@ void Get_Joystick(void) {
 
 
 void GPIOE_Handler() {
-    GPIOIntClear(GPIO_PORTE_BASE, INT_GPIOE);
+    GPIOIntClear(GPIO_PORTE_BASE, BUTTONS_INT_PIN);
     G8RTOS_SignalSemaphore(&sem_MMB);
+}
+
+volatile uint8_t bruh = 0;
+
+void ButtonsTest(){
+    for(;;){
+        G8RTOS_WaitSemaphore(&sem_MMB);
+        G8RTOS_WaitSemaphore(&sem_I2CA);
+        uint8_t data = MultimodButtons_Get();
+        G8RTOS_SignalSemaphore(&sem_I2CA);
+
+        bruh++;
+
+        uint8_t SW1P, SW2P, SW3P, SW4P = 0;
+        if(data & SW1){
+            uint8_t SW1P = 1;
+        }
+        else if(data&SW2){
+            uint8_t SW2P = 1;
+        }
+        else if(data&SW3){
+            uint8_t SW3P = 1;
+        }
+        else{
+            uint8_t SW4P = 1;
+        }
+
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
+        UARTprintf("Output: %u\n\n", bruh);
+        G8RTOS_SignalSemaphore(&sem_UART);
+    }
+ 
 }
 
 /*

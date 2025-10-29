@@ -52,9 +52,9 @@ int main(void) {
 
     // initialize the FIFOs
     G8RTOS_Init();
-    //G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
-    //G8RTOS_AddThread(ButtonsTest, 2, "Odysseus", 24);
-    // G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
+    G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
+    G8RTOS_AddThread(ButtonsTest, 2, "Odysseus", 24);
+    //G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
     // G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Launch();

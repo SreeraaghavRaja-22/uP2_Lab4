@@ -20,7 +20,7 @@ static void Multimod_Init() {
     LaunchpadButtons_Init();
     LaunchpadLED_Init();
     //ST7789_Init();
-    //MultimodButtons_Init();
+    MultimodButtons_Init();
 }
 
 #endif /* MULTIMOD_H_ */
