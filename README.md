@@ -8,13 +8,14 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Ensure that there will be no deadlocks and no situation where all threads are asleep
   - Stuff I used for Testing:
     - Changed LaunchpadLED.c file so that I could only see the red LED (well just make sure not to mess with blue)
-  - Stuff to Work On:
-    - Figure out how to not brick the code when having multiple threads UART at once
-      - Fixed the priority of the FIFOs to make them lower than the other threads
-    - Figure out how to fix the timing for the consumer thread
-      - It works even if the producer has the same sleep time
-    - Fix weird bug with the code where the value decrements by 15 for no reason drops because the head cycles?
-      - This is not a bug because the head pointer cycles -- could still be a bug
+  
+- Part B:
+  - Figure out how to not brick the code when having multiple threads UART at once
+    - Fixed the priority of the FIFOs to make them lower than the other threads
+  - Figure out how to fix the timing for the consumer thread
+    - It works even if the producer has the same sleep time
+  - Fix weird bug with the code where the value decrements by 15 for no reason drops because the head cycles?
+    - This is not a bug because the head pointer cycles -- could still be a bug
   
 - Part C:
   - I accounted for alive and dead threads
@@ -28,9 +29,6 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Test Joystick
   - Debounce multimod and joystick switches
   
-- Disabled Periodic threads in SysTick to test code
-  - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
-  
 - Part E:
   - use time.h for the header file for randomness
   - Things to do:
@@ -41,4 +39,8 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
     - Write Print_WorldCoords() (Period: 100ms)
     - Write Get_Joystick(Period: 100ms)
     - Write GPIOD_Handler()
+  
+- Important Notes:
+  - Disabled Periodic threads in SysTick to test code
+  - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
   
