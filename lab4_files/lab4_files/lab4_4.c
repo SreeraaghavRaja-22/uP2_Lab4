@@ -48,24 +48,14 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
     G8RTOS_InitSemaphore(&sem_SPI, SPI_Resources);
-    G8RTOS_InitSemaphore(&sem_SW1, SW_Resources);
+    G8RTOS_InitSemaphore(&sem_MMB, SW_Resources);
 
     // initialize the FIFOs
-    //G8RTOS_InitFIFO(0);
     G8RTOS_Init();
-    G8RTOS_Add_APeriodicEvent(SW1_ISR, 2, INT_GPIOF);
-    //G8RTOS_Add_APeriodicEvent(SW2_ISR, 2, INT_GPIOF);
-    G8RTOS_AddThread(Accel, 0, "Accel", 32);
-    G8RTOS_AddThread(Gyro, 1, "Gyro", 64);
-
-    // G8RTOS_AddThread(Opto, 2, "Opto", 96);
-    // G8RTOS_AddThread(FIFOProducer, 3, "FIFPROD", 100);
-    // G8RTOS_AddThread(FIFOConsumer, 5, "FIFCONS", 101);
-    // G8RTOS_AddThread(FIFOConsumer2, 5, "FIFOCONS2", 133);
-    G8RTOS_AddThread(SW1_Event_Handler, 5, "SW1E", 20);
-    //G8RTOS_AddThread(SW2_Event_Handler, 1, "SW2E", 343);
-    G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
-    G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
+    //G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
+    //G8RTOS_AddThread(ButtonsTest, 2, "Odysseus", 24);
+    // G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
+    // G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Launch();
 

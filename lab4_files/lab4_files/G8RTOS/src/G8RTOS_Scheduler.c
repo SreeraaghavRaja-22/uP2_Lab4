@@ -399,6 +399,7 @@ sched_ErrCode_t G8RTOS_KillThread(threadID_t threadID) {
 sched_ErrCode_t G8RTOS_KillSelf() {
     G8RTOS_KillThread(CurrentlyRunningThread->ThreadID);
     HWREG(NVIC_INT_CTRL) |= (NVIC_INT_CTRL_PEND_SV);
+    return NO_ERROR;
 }
 
 // sleep

@@ -38,6 +38,7 @@ threads.obj: ../MultimodDrivers/multimod_joystick.h
 threads.obj: ../MultimodDrivers/multimod_PCA9555.h
 threads.obj: ../MultimodDrivers/multimod_PCA9956b.h
 threads.obj: ../MultimodDrivers/multimod_ST7789.h
+threads.obj: ../MultimodDrivers/multimod_buttons.h
 threads.obj: ../MiscFunctions/Shapes/inc/cube.h
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/math.h
 threads.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/_defs.h
@@ -127,6 +128,8 @@ C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/uart.h:
 ../MultimodDrivers/multimod_PCA9956b.h:
 
 ../MultimodDrivers/multimod_ST7789.h:
+
+../MultimodDrivers/multimod_buttons.h:
 
 ../MiscFunctions/Shapes/inc/cube.h:
 

@@ -18,6 +18,7 @@ semaphore_t sem_UART;
 semaphore_t sem_I2CA;
 semaphore_t sem_SPI;
 semaphore_t sem_SW1;
+semaphore_t sem_MMB;
 
 
 /***********************************Semaphores**************************************/
@@ -48,6 +49,7 @@ void ChildA_Thread();
 void ChildB_Thread();
 void PThread1();
 void PThread2();
+void ButtonsTest(); 
 
 
 

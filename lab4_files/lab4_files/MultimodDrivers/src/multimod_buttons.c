@@ -24,15 +24,28 @@
 // relevant interrupt pin.
 // Return: void
 void MultimodButtons_Init() {
-    // your code
+    I2C_Init(I2C_A_BASE);
 
+    // enable the GPIO buttons 
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE)){}
+
+    // set the interrupt Pin as an input from the perspective of the launchpad
+    GPIOPinTypeGPIOInput(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+
+    // set the type of interrupt to falling edge
+    GPIOIntTypeSet(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN, GPIO_FALLING_EDGE);
+    // Enable the pin interrupts 
+    GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
 }
 
 // MultimodButtons_Get
 // Gets the input to GPIO bank 1, [0..7].
 // Return: uint8_t 
 uint8_t MultimodButtons_Get() {
-    // your code
+    // read GPIO Expander and address 0
+    I2C_WriteSingle(I2C_A_BASE, BUTTONS_PCA9555_GPIO_ADDR, 0);
+    return (I2C_ReadSingle(I2C_A_BASE, BUTTONS_PCA9555_GPIO_ADDR));
 }
 
 /********************************Public Functions***********************************/

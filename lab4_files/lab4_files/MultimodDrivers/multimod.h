@@ -11,6 +11,7 @@
 #include "multimod_PCA9555.h"
 #include "multimod_PCA9956b.h"
 #include "multimod_ST7789.h"
+#include "multimod_buttons.h"
 
 static void Multimod_Init() {
     UART_Init();
@@ -19,6 +20,7 @@ static void Multimod_Init() {
     LaunchpadButtons_Init();
     LaunchpadLED_Init();
     //ST7789_Init();
+    //MultimodButtons_Init();
 }
 
 #endif /* MULTIMOD_H_ */

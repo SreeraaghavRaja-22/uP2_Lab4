@@ -31,7 +31,7 @@ void I2C_Init(uint32_t mod) {
         GPIOPinConfigure(GPIO_PA6_I2C1SCL);
         GPIOPinConfigure(GPIO_PA7_I2C1SDA);
 
-        GPIOPinTypeI2CSCL(I2C_A_GPIO_BASE, I2C_A_PIN_SCL); // my code keeps breaking on this line why?
+        GPIOPinTypeI2CSCL(I2C_A_GPIO_BASE, I2C_A_PIN_SCL);
 
         GPIOPinTypeI2C(I2C_A_GPIO_BASE, I2C_A_PIN_SDA);
     }
@@ -41,18 +41,16 @@ void I2C_Init(uint32_t mod) {
         SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C0);
         SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
-        GPIOPinTypeI2CSCL(I2C_B_GPIO_BASE, I2C_B_PIN_SCL); // my code keeps breaking on this line why?
+        // Configure the pins as SCL and SDA
+        GPIOPinConfigure(GPIO_PB2_I2C0SCL);
+        GPIOPinConfigure(GPIO_PB3_I2C0SDA);
+
+        GPIOPinTypeI2CSCL(I2C_B_GPIO_BASE, I2C_B_PIN_SCL); 
 
         GPIOPinTypeI2C(I2C_B_GPIO_BASE, I2C_B_PIN_SDA);
 
-        // Configure the pins as SCL and SDA
-        GPIOPinConfigure(I2C_B_PIN_SCL);
-        GPIOPinConfigure(I2C_B_PIN_SDA);
+        
     }
-
-    // does it require GPIO pins? if so, how do we configure them?
-    // Yes, use the afsel registers to configure them or use GPIOPinConfigure
-    // Configure the SCL Pin (PIN2)
    
     // you get this for free -- this does what the RCGCI2C register also does
     I2CMasterInitExpClk(mod, SysCtlClockGet(), false);   

@@ -274,6 +274,19 @@ void PThread2(){
   //  } 
 }
 
+
+
+void ButtonsTest(){
+    G8RTOS_WaitSemaphore(&sem_MMB);
+    G8RTOS_WaitSemaphore(&sem_I2CA);
+    uint8_t data = MultimodButtons_Get();
+    G8RTOS_SignalSemaphore(&sem_I2CA);
+
+    G8RTOS_WaitSemaphore(&sem_UART);
+    UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", data&SW1, data&SW2, data&SW3, data&SW4);
+    G8RTOS_SignalSemaphore(&sem_UART);
+}
+
 /*
 void CamMove_Thread(void) {
     uint32_t result;
@@ -468,10 +481,13 @@ void Get_Joystick(void) {
 
 /*******************************Aperiodic Threads***********************************/
 
-/*
-void GPIOE_Handler() {
-    // your code}
 
+void GPIOE_Handler() {
+    GPIOIntClear(GPIO_PORTE_BASE, INT_GPIOE);
+    G8RTOS_SignalSemaphore(&sem_MMB);
+}
+
+/*
 void GPIOD_Handler() {
    	// your code}
 */
