@@ -15,11 +15,11 @@
 
 static void Multimod_Init() {
     UART_Init();
-    BMI160_Init();
-    OPT3001_Init();
-    LaunchpadButtons_Init();
-    LaunchpadLED_Init();
-    //ST7789_Init();
+    //BMI160_Init();
+    //OPT3001_Init();
+    //LaunchpadButtons_Init();
+    //LaunchpadLED_Init();
+    ST7789_Init();
     MultimodButtons_Init();
     JOYSTICK_Init();
 }

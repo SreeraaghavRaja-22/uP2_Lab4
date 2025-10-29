@@ -20,7 +20,7 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - I accounted for alive and dead threads
   - I accounted for the linked list change in the scheduler (for killself function)
   - Aperiodic threads only require you to use intRegister as that moves the Vector table from Flash to SRAM
-  - Switches are affected by the TFT display, so when testing the switches, turn off everything related to the display
+  - Switches are affected by the TFT display, so when testing the switches, turn off everything related to the display (getting this to work early on was a blessing in disguise)
   - Make sure to set the SW semaphore's value to 0 so that it actually gets blocked until we trigger it
   - Now time for child threads
 
@@ -32,5 +32,13 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
   
 - Part E:
-  - I hope I get to finish this soon
+  - use time.h for the header file for randomness
+  - Things to do:
+    - Understand Cube Thread
+    - Write CamMove Thread
+    - Write ReadButtons
+    - Write Read_JoystickPress
+    - Write Print_WorldCoords() (Period: 100ms)
+    - Write Get_Joystick(Period: 100ms)
+    - Write GPIOD_Handler()
   
