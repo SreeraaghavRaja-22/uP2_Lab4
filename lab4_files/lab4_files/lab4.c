@@ -64,6 +64,8 @@ int main(void) {
     // G8RTOS_AddThread(FIFOConsumer2, 5, "FIFOCONS2", 133);
     G8RTOS_AddThread(SW1_Event_Handler, 5, "SW1E", 20);
     //G8RTOS_AddThread(SW2_Event_Handler, 1, "SW2E", 343);
+    G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
+    G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
     G8RTOS_Launch();
 

@@ -88,7 +88,7 @@ void SysTick_Handler() {
     tcb_t* currThread = CurrentlyRunningThread;
     ptcb_t* currPThread = &ptcbs[0];
 
-    /*
+    
     // loop through all the periodic threads and execute them appropriately (if their time is now)
     do{
         
@@ -103,7 +103,7 @@ void SysTick_Handler() {
 
         currPThread = currPThread->nextPTCB;
     }while(currPThread != &ptcbs[0]);
-    */
+    
 
     // Loop through the background threads: check sleeping threads and wake them up appropriately if their time is now
     while(!currThread->isAlive)

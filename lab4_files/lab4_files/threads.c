@@ -258,6 +258,21 @@ void ChildB_Thread(){
     }
 }
 
+void PThread1(){
+   // for(;;){
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Give me sirens and a cyclops!\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
+   // } 
+}
+
+void PThread2(){
+  //  for(;;){
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Give me giants and a hydra!\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
+  //  } 
+}
 
 /*
 void CamMove_Thread(void) {
