@@ -40,8 +40,9 @@ static uint32_t NumberOfThreads;
 // Current Number of Periodic Threads currently in the scheduler
 static uint32_t NumberOfPThreads;
 
-// Keep Track of the Total Number of Threads Created
-static uint32_t ThreadsCreated;
+// Index of the first dead thread for relinking
+static uint32_t deadThreadIndex;
+
 
 
 
@@ -69,6 +70,8 @@ uint32_t SystemTime;
 tcb_t* CurrentlyRunningThread;
 
 volatile uint8_t aliveCount = 0;
+
+
 
 /********************************Public Variables***********************************/
 
@@ -135,7 +138,7 @@ void G8RTOS_Init() {
     SystemTime = 0;
     NumberOfThreads = 0;
     NumberOfPThreads = 0;
-    ThreadsCreated = 0;
+    deadThreadIndex = 0;
 }
 
 // G8RTOS_Launch
@@ -202,31 +205,35 @@ void G8RTOS_Scheduler() {
 // Return: sched_ErrCode_t
 sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, char *name, threadID_t ID) {
     
-    uint32_t aliveIndices[3] = {MAX_THREADS-1, MAX_THREADS-1, 0};
+    uint32_t currDeadIndex = MAX_THREADS-1;
+    uint32_t nextAliveIndex = 0;
+    uint32_t prevAliveIndex = MAX_THREADS-1;
 
     // find the index of the first available dead thread to overwrite
-    for(int i = MAX_THREADS-1; i>=0; i--){        
-        if(!(threadControlBlocks[i].isAlive) && i < aliveIndices[0]){
-            aliveIndices[0] = i;
-        }
-        
-        if((threadControlBlocks[i].isAlive) && i < aliveIndices[1]){
-            aliveIndices[1] = i;
-        }
-    }    
-
-    for(int i = 0; i < MAX_THREADS; i++){
-        if(threadControlBlocks[i].isAlive){
-            if(i > aliveIndices[2]){
-                aliveIndices[2] = i;
-            }
+    for(int i = MAX_THREADS-1; i>=0; i--){     
+        // find the index of the first dead thread   
+        if(!(threadControlBlocks[i].isAlive) && i < currDeadIndex){
+            currDeadIndex = nextAliveIndex = prevAliveIndex = i;
         }
     }
+
+    // check for the previous alive index
+    for(int j = 1; j < MAX_THREADS; j++){
+        uint32_t currInd = (currDeadIndex + j) % MAX_THREADS;
+        if(threadControlBlocks[currInd].isAlive){
+            prevAliveIndex = currInd;
+        }
+    }
+
+    for(int j = 1; j < MAX_THREADS>; j++){
+        currInd = 
+    }
+
 
     IBit_State = StartCriticalSection();
     
     // check that num_threads == max_threads {return error code }
-    if(NumberOfThreads >= MAX_THREADS){
+    if(aliveCount >= MAX_THREADS){
         
         // end critical section early and exist function
         EndCriticalSection(IBit_State);
@@ -236,43 +243,40 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     } 
 
     // added always points to the first thread (next)
-    threadControlBlocks[NumberOfThreads].nextTCB = &threadControlBlocks[0];
+    threadControlBlocks[currDeadIndex].nextTCB = &threadControlBlocks[nextAliveIndex];
     // first always points to the added (prev)
-    threadControlBlocks[0].previousTCB = &threadControlBlocks[NumberOfThreads];
+    threadControlBlocks[nextAliveIndex].previousTCB = &threadControlBlocks[currDeadIndex];
+    // case when you're adding threads
+    // previously / intermediate thread points to most recently added thread
+    threadControlBlocks[prevAliveIndex].nextTCB = &threadControlBlocks[currDeadIndex];        
+        // most recently added thread poipnts to previously added thread 
+    threadControlBlocks[currDeadIndex].previousTCB = &threadControlBlocks[prevAliveIndex];
 
-    if(NumberOfThreads != 0){
-        // case when you're adding threads
-        // previously / intermediate thread points to most recently added thread
-    threadControlBlocks[NumberOfThreads - 1].nextTCB = &threadControlBlocks[NumberOfThreads];        
-        // most recently added thread points to previously added thread 
-    threadControlBlocks[NumberOfThreads].previousTCB = &threadControlBlocks[NumberOfThreads-1];
-    }
 
     // initialize the stack of the current thread
-    SetInitialStack(NumberOfThreads);
+    SetInitialStack(currDeadIndex);
 
     // set the program counter value to the value of the thread that we need
-    threadStacks[NumberOfThreads][STACKSIZE-2] = (int32_t)threadToAdd;
+    threadStacks[currDeadIndex][STACKSIZE-2] = (int32_t)threadToAdd;
     
-    threadControlBlocks[NumberOfThreads].priority = priority;
-    threadControlBlocks[NumberOfThreads].blocked = 0; 
-    threadControlBlocks[NumberOfThreads].asleep = false; 
-    threadControlBlocks[NumberOfThreads].ThreadID = ID;
+    threadControlBlocks[currDeadIndex].priority = priority;
+    threadControlBlocks[currDeadIndex].blocked = 0; 
+    threadControlBlocks[currDeadIndex].asleep = false; 
+    threadControlBlocks[currDeadIndex].ThreadID = ID;
 
 
-    threadControlBlocks[NumberOfThreads].isAlive = true;
+    threadControlBlocks[currDeadIndex].isAlive = true;
 
     // increment the aliveCount value -- useful for KillThread
     aliveCount++;
 
-    threadControlBlocks[NumberOfThreads].sleepCount = 0;
+    threadControlBlocks[currDeadIndex].sleepCount = 0;
 
     // set the thread name 
-    strcpy(threadControlBlocks[NumberOfThreads].threadName, name);
+    strcpy(threadControlBlocks[currDeadIndex].threadName, name);
 
     // increment the number of threads at the end
     NumberOfThreads++; 
-    ThreadsCreated++;
     
     EndCriticalSection(IBit_State);
 
