@@ -217,16 +217,22 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
         }
     }
 
-    // check for the previous alive index
+    // check for the next alive index
     for(int j = 1; j < MAX_THREADS; j++){
+        // wrap around by incrementing and going back down to 0 after 
         uint32_t currInd = (currDeadIndex + j) % MAX_THREADS;
         if(threadControlBlocks[currInd].isAlive){
-            prevAliveIndex = currInd;
+            nextAliveIndex = currInd;
         }
     }
 
-    for(int j = 1; j < MAX_THREADS>; j++){
-        uint32_t currInd = (MAX_THREADS - (currDeadIndex + j)) % MAX_THREADS;
+    // check for the previously alive index
+    for(int j = 1; j < MAX_THREADS; j++){
+        // wrap around by subtracting the current index by the iterator and mod with number of threads
+        uint32_t currInd = (currDeadIndex - j + MAX_THREADS) % MAX_THREADS;
+        if(threadControlBlocks[currInd].isAlive){
+            prevAliveIndex = currInd;
+        }
     }
 
 

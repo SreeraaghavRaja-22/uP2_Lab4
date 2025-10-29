@@ -209,7 +209,7 @@ void SW1_Event_Handler(){
             G8RTOS_SignalSemaphore(&sem_UART);
 
            G8RTOS_AddThread(ChildA_Thread, 50, "Amaterasu", 23);
-           // G8RTOS_AddThread(ChildB_Thread, 55, "Susanoo", 24);
+           G8RTOS_AddThread(ChildB_Thread, 55, "Susanoo", 24);
         //}
         sleep(20);
     }
