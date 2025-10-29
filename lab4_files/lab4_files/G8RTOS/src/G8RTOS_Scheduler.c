@@ -226,7 +226,7 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     }
 
     for(int j = 1; j < MAX_THREADS>; j++){
-        currInd = 
+        uint32_t currInd = (MAX_THREADS - (currDeadIndex + j)) % MAX_THREADS;
     }
 
 
