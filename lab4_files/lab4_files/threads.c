@@ -475,6 +475,7 @@ void Read_Buttons() {
             G8RTOS_SignalSemaphore(&sem_UART);
         }
 
+        // this helps prevent the pin from activating on a rising edge (weird issue I ran into)
         uint8_t released;
         do {
             G8RTOS_WaitSemaphore(&sem_I2CA);
