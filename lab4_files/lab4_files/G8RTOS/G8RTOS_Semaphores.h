@@ -17,6 +17,8 @@
 #define I2C_Resources 1
 #define SPI_Resources 1
 #define SW_Resources 0
+#define MMB_Resources 0 
+#define JOY_Resources 0
 /*************************************Defines***************************************/
 
 /******************************Data Type Definitions********************************/

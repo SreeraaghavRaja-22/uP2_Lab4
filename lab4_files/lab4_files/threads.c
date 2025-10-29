@@ -437,22 +437,59 @@ void Cube_Thread(void) {
 
 */
 
-/*
 void Read_Buttons() {
+     for(;;){
+        G8RTOS_WaitSemaphore(&sem_MMB);
 
-    while(1) {
-        // your code goes here
+        // sleep for a bit
+        sleep(10);
+        
+        // disable interrupt
+        GPIOIntDisable(GPIO_PORTE_BASE, GPIO_PIN_2);
+
+        if(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_2) == 0){
+            G8RTOS_WaitSemaphore(&sem_I2CA);
+            uint8_t data = MultimodButtons_Get();
+            G8RTOS_SignalSemaphore(&sem_I2CA);
+
+            uint8_t SW1P = 0;
+            uint8_t SW2P = 0;
+            uint8_t SW3P = 0;
+            uint8_t SW4P = 0;
+
+            if(~data & SW1){
+                SW1P = 1;
+            }
+            else if(~data & SW2){
+                SW2P = 1;
+            }
+            else if(~data & SW3){
+                SW3P = 1;
+            }
+            else if(~data & SW4){
+                SW4P = 1;
+            }
+
+            G8RTOS_WaitSemaphore(&sem_UART);
+            UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
+            // UARTprintf("Data: %x\n\n", data);
+            G8RTOS_SignalSemaphore(&sem_UART);
+        }
+
+        GPIOIntEnable(GPIO_PORTE_BASE, GPIO_PIN_2);
     }
 }
 
 void Read_JoystickPress() {
-
-    while(1) {
-        // your code goes here
+    for(;;){
+        G8RTOS_WaitSemaphore(&sem_JOY);
+        //uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Joystick value: %u\n\n");
+        G8RTOS_SignalSemaphore(&sem_UART);
     }
 }
 
-*/
 
 /********************************Periodic Threads***********************************/
 
@@ -478,41 +515,10 @@ void GPIOE_Handler() {
 }
 
 
-void ButtonsTest(){
-    for(;;){
-        G8RTOS_WaitSemaphore(&sem_MMB);
-        G8RTOS_WaitSemaphore(&sem_I2CA);
-        uint8_t data = MultimodButtons_Get();
-        G8RTOS_SignalSemaphore(&sem_I2CA);
-
-        uint8_t SW1P = 0;
-        uint8_t SW2P = 0;
-        uint8_t SW3P = 0;
-        uint8_t SW4P = 0;
-
-        if(~data & SW1){
-            SW1P = 1;
-        }
-        else if(~data & SW2){
-            SW2P = 1;
-        }
-        else if(~data & SW3){
-            SW3P = 1;
-        }
-        else if(~data & SW4){
-            SW4P = 1;
-        }
-
-        G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
-        UARTprintf("Data: %x\n\n", data);
-        G8RTOS_SignalSemaphore(&sem_UART);
-    }
-}
-
 
 void GPIOD_Handler() {
-   	// your code}
+   	GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+    G8RTOS_SignalSemaphore(&sem_JOY);
 }
 
 /*******************************Aperiodic Threads***********************************/

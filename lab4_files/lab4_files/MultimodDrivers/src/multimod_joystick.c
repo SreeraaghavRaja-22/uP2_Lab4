@@ -48,6 +48,9 @@ void JOYSTICK_Init(void) {
     ADCSequenceStepConfigure(JOYSTICK_ADC_BASE, 0, 1, ADC_CTL_CH1 | ADC_CTL_END | ADC_CTL_IE);
 
     ADCSequenceEnable(JOYSTICK_ADC_BASE, 0);
+
+    // enable the joystick interrupt
+    JOYSTICK_IntEnable();
 }
 
 

@@ -43,6 +43,8 @@ static uint32_t NumberOfPThreads;
 // Index of the first dead thread for relinking
 static uint32_t deadThreadIndex;
 
+static char* debugName;
+
 
 
 
@@ -280,6 +282,8 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
 
     // set the thread name 
     strcpy(threadControlBlocks[currDeadIndex].threadName, name);
+
+    debugName = name; 
 
     // increment the number of threads at the end
     NumberOfThreads++; 
