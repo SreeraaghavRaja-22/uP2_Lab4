@@ -30,4 +30,13 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Switches are affected by the TFT display, so when testing the switches, turn off everything related to the display
   - Make sure to set the SW semaphore's value to 0 so that it actually gets blocked until we trigger it
   - Now time for child threads
+
+- Part D:
+  - Things to Do:
+    - Finish up the Joystick Functions and learn more about the ADC
+    - Finish part E
+    - Debounce multimode and joystick switches
+  
+- Disabled Periodic threads in SysTick to test code
+  - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
   
