@@ -17,6 +17,7 @@
 
 #define JOYSTICK_INT_GPIO_BASE       GPIO_PORTD_BASE
 #define JOYSTICK_INT_PIN             GPIO_PIN_2
+#define JOYSTICK_ADC_BASE            ADC0_BASE
 
 /*************************************Defines***************************************/
 
