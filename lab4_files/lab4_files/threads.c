@@ -485,30 +485,34 @@ void ButtonsTest(){
         uint8_t data = MultimodButtons_Get();
         G8RTOS_SignalSemaphore(&sem_I2CA);
 
-        uint8_t SW1P, SW2P, SW3P, SW4P = 0;
-        if(data & SW1){
-            uint8_t SW1P = 1;
+        uint8_t SW1P = 0;
+        uint8_t SW2P = 0;
+        uint8_t SW3P = 0;
+        uint8_t SW4P = 0;
+
+        if(~data & SW1){
+            SW1P = 1;
         }
-        else if(data & SW2){
-            uint8_t SW2P = 1;
+        else if(~data & SW2){
+            SW2P = 1;
         }
-        else if(data&SW3){
-            uint8_t SW3P = 1;
+        else if(~data & SW3){
+            SW3P = 1;
         }
-        else{
-            uint8_t SW4P = 1;
+        else if(~data & SW4){
+            SW4P = 1;
         }
 
         G8RTOS_WaitSemaphore(&sem_UART);
         UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
-        UARTprintf("Data: %u\n\n", data);
+        UARTprintf("Data: %x\n\n", data);
         G8RTOS_SignalSemaphore(&sem_UART);
     }
 }
 
-/*
+
 void GPIOD_Handler() {
    	// your code}
-*/
+}
 
 /*******************************Aperiodic Threads***********************************/

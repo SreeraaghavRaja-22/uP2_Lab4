@@ -28,35 +28,54 @@
 // Initializes ports & adc module for joystick
 // Return: void
 void JOYSTICK_Init(void) {
-    // your code
+    // enable ADC module (Idk if it's 0 or 1) -- shouldn't matter (might have to use both)
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_ADC0)){}
+
+    // would I need to enable both ADCs for each axis?? 
+    // configure the ADC Module pins
+    GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+
+    // set the input pins as ADC inputs 
+    GPIOPINCOnfigure(GPIO_PORTE_BASE, (GPIO_PCTL_PE2_AIN1 | GPIO_PCTL_PE3_AIN0));
+
+
 }
 
 // JOYSTICK_IntEnable
 // Enables interrupts
 // Return: void
 void JOYSTICK_IntEnable() {
-    // your code
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD)){}
+
+    // configure the interrupt pin for the switch on joystick 
+    GPIOPinTypeGPIOInput(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+
+    GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+    GPIOIntTypeSet(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN, GPIO_FALLING_EDGE);
+    GPIOIntEnable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
 }
 
 // JOYSTICK_GetPress
 // Gets button reading
 // Return: bool
 uint8_t JOYSTICK_GetPress() {
-    // your code
+    return ((uint8_t)GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN));
 }
 
 // JOYSTICK_GetX
 // Gets X adc reading from joystick
 // Return: uint16_t
 uint16_t JOYSTICK_GetX() {
-    // your code
+    // do some ADC stuff
 }
 
 // JOYSTICK_GetY
 // Gets Y adc reading from joystick
 // Return: uint16_t
 uint16_t JOYSTICK_GetY() {
-    // your code
+    // do some ADC stuff
 }
 
 
@@ -64,7 +83,7 @@ uint16_t JOYSTICK_GetY() {
 // Gets X and Y adc readings
 // Return: uint32_t, 16-bit packed, upper 16-bit is X and lower 16-bit is Y.
 uint32_t JOYSTICK_GetXY() {
-    // your code
+    // Do some ADC stuff
 }
 
 /********************************Public Functions***********************************/
