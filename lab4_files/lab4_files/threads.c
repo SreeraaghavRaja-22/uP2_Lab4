@@ -274,6 +274,19 @@ void PThread2(){
   //  } 
 }
 
+void LCDThread(){
+    for(;;){
+        idle_count++;
+        if(idle_count%2 == 0){
+            ST7789_Fill(ST7789_BLUE);
+        }
+        else{
+            ST7789_Fill(ST7789_ORANGE);
+        }
+        sleep(300);
+    }   
+}
+
 
 
 

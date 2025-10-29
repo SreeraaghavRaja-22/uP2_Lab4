@@ -30,6 +30,7 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Debounce multimod and joystick switches
     - Joystick Switch Debounced!!!
     - Multimod is finally done
+    - Aperiodic threads must have the highest priority
   
 - Part E:
   - use time.h for the header file for randomness

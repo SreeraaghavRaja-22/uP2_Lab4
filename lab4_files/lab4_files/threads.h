@@ -52,6 +52,7 @@ void ChildA_Thread();
 void ChildB_Thread();
 void PThread1();
 void PThread2();
+void LCDThread();
 
 
 
