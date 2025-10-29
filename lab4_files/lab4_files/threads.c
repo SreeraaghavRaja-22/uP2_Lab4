@@ -444,7 +444,9 @@ void Read_Buttons() {
         // sleep for a bit
         sleep(10);
 
-        if(GPIOPinRead(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN) == 0){
+        uint32_t data = GPIOPinRead(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+
+        if(data == 0){
             G8RTOS_WaitSemaphore(&sem_I2CA);
             uint8_t data = MultimodButtons_Get();
             G8RTOS_SignalSemaphore(&sem_I2CA);
@@ -473,6 +475,14 @@ void Read_Buttons() {
             G8RTOS_SignalSemaphore(&sem_UART);
         }
 
+        uint8_t released;
+        do {
+            G8RTOS_WaitSemaphore(&sem_I2CA);
+            released = MultimodButtons_Get();
+            G8RTOS_SignalSemaphore(&sem_I2CA);
+            sleep(1);
+        } while (~released & (SW1 | SW2 | SW3 | SW4));
+
         GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
     }
 }
@@ -483,10 +493,11 @@ void Read_JoystickPress() {
         sleep(10);
         uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
         if(data == 0){
-             G8RTOS_WaitSemaphore(&sem_UART);
+            G8RTOS_WaitSemaphore(&sem_UART);
             UARTprintf("Joystick value: %u\n\n", data);
             G8RTOS_SignalSemaphore(&sem_UART);
         }
+        GPIOIntEnable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
     }
 }
 
@@ -518,6 +529,7 @@ void GPIOE_Handler() {
 
 
 void GPIOD_Handler() {
+    GPIOIntDisable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
    	GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
     G8RTOS_SignalSemaphore(&sem_JOY);
 }

@@ -29,7 +29,7 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Test Joystick
   - Debounce multimod and joystick switches
     - Joystick Switch Debounced!!!
-    - Multimod is annoying
+    - Multimod is finally done
   
 - Part E:
   - use time.h for the header file for randomness
@@ -44,5 +44,5 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   
 - Important Notes:
   - Disabled Periodic threads in SysTick to test code
-  - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
+  - when uncommenting out that portion, make sure to add a periodic thread to not mess stuff up!
   
