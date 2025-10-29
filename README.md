@@ -25,9 +25,8 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - Now time for child threads
 
 - Part D:
-  - Things to Do:
-    - Finish up the Joystick Functions and learn more about the ADC
-    - Debounce multimode and joystick switches
+  - Test Joystick
+  - Debounce multimod and joystick switches
   
 - Disabled Periodic threads in SysTick to test code
   - when uncommenting out that portion, make sure to add a periodic thread to no mess stuff up!
