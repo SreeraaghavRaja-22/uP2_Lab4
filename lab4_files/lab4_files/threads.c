@@ -439,15 +439,12 @@ void Cube_Thread(void) {
 
 void Read_Buttons() {
      for(;;){
-        G8RTOS_WaitSemaphore(&sem_MMB);
+        G8RTOS_WaitSemaphore(&sem_MMB);        
 
         // sleep for a bit
         sleep(10);
-        
-        // disable interrupt
-        GPIOIntDisable(GPIO_PORTE_BASE, GPIO_PIN_2);
 
-        if(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_2) == 0){
+        if(GPIOPinRead(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN) == 0){
             G8RTOS_WaitSemaphore(&sem_I2CA);
             uint8_t data = MultimodButtons_Get();
             G8RTOS_SignalSemaphore(&sem_I2CA);
@@ -476,17 +473,20 @@ void Read_Buttons() {
             G8RTOS_SignalSemaphore(&sem_UART);
         }
 
-        GPIOIntEnable(GPIO_PORTE_BASE, GPIO_PIN_2);
+        GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
     }
 }
 
 void Read_JoystickPress() {
     for(;;){
         G8RTOS_WaitSemaphore(&sem_JOY);
-        //uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
-        G8RTOS_WaitSemaphore(&sem_UART);
-        UARTprintf("Joystick value: %u\n\n");
-        G8RTOS_SignalSemaphore(&sem_UART);
+        sleep(10);
+        uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+        if(data == 0){
+             G8RTOS_WaitSemaphore(&sem_UART);
+            UARTprintf("Joystick value: %u\n\n", data);
+            G8RTOS_SignalSemaphore(&sem_UART);
+        }
     }
 }
 
@@ -510,7 +510,8 @@ void Get_Joystick(void) {
 
 
 void GPIOE_Handler() {
-    GPIOIntClear(GPIO_PORTE_BASE, BUTTONS_INT_PIN);
+    GPIOIntDisable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+    GPIOIntClear(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
     G8RTOS_SignalSemaphore(&sem_MMB);
 }
 
