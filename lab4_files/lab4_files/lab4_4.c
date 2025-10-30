@@ -52,12 +52,14 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_JOY, JOY_Resources);
 
     // initialize the FIFOs
+    G8RTOS_InitFIFO(0);
     G8RTOS_Init();
     G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
     G8RTOS_Add_APeriodicEvent(GPIOD_Handler, 2, INT_GPIOD);
     G8RTOS_AddThread(Read_Buttons, 2, "Odysseus", 24);
     G8RTOS_AddThread(Read_JoystickPress, 1, "Telemachus", 22);
     G8RTOS_AddThread(LCDThread, 8, "Penelope", 88);
+    G8RTOS_AddThread(Get_Joystick, 11, "Athena", 100);
     //G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
     // G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);

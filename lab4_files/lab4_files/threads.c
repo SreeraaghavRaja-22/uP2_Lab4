@@ -32,6 +32,7 @@
 #define max_uint32_value (4294967295.0f)
 
 
+
 /*************************************Defines***************************************/
 
 /*********************************Global Variables**********************************/
@@ -56,6 +57,7 @@ uint8_t idle_count = 0;
 
 // FIFO vals
 uint32_t data = 0;
+
 
 /*********************************Global Variables**********************************/
 
@@ -167,8 +169,8 @@ void FIFOConsumer2(void)
     }
 }
 
+// need this to not get a deadlock or else you're cooked
 void Idle_Thread(void) {
-    // need this to not get a deadlock or else you're cooked
     for(;;)
     {
         //G8RTOS_WaitSemaphore(&sem_SPI);
@@ -523,11 +525,19 @@ void Print_WorldCoords(void) {
     UARTprintf("Cam Pos, X: %d, Y: %d, Z: %d\n", (int32_t) world_camera_pos.x, (int32_t)world_camera_pos.y, (int32_t)world_camera_pos.z);
 }
 
+*/
 void Get_Joystick(void) {
-	// your code}
+	for(;;){
+        data = JOYSTICK_GetXY();
+        G8RTOS_WriteFIFO(0, data);
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("Joystick Data\n\n X: %u, Y:%u\n\n", (uint16_t)(data>>16), (uint16_t)data);
+        G8RTOS_SignalSemaphore(&sem_UART);
+        sleep(300);
+    }
 }
 
-*/
+
 /********************************Periodic Threads***********************************/
 
 

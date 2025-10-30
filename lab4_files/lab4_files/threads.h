@@ -22,6 +22,7 @@ semaphore_t sem_MMB;
 semaphore_t sem_JOY;
 
 
+
 /***********************************Semaphores**************************************/
 
 
