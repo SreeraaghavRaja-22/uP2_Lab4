@@ -223,7 +223,6 @@ void Cube_Thread(void) {
             kill = 0;
             G8RTOS_SignalSemaphore(&sem_KillCube);
             G8RTOS_KillSelf();
-            num_cubes--;
         }
         
 
@@ -298,19 +297,21 @@ void Read_Buttons() {
             // send the data as a packet to the SPAWNCOOR FIFO
             uint32_t coordsFIFO = ((uint32_t)(((XVal + 100) & 0xFFF) << 20) | (uint32_t)(((YVal+100) & 0xFFF) << 8) | (uint32_t)((((-1) * ZVal + 20) & 0xFF)));
 
-            // only add Cube if there is space
-            if(G8RTOS_AddThread(Cube_Thread, 200, "Cube", cube_id) == NO_ERROR){   
-                G8RTOS_WriteFIFO(SPAWNCOOR_FIFO, coordsFIFO);
-                num_cubes++;
-                cube_id++;
+           
+            if(num_cubes < (MAX_THREADS - 4)){
+                // only add Cube if there is space
+                if(G8RTOS_AddThread(Cube_Thread, 200, "Cube", cube_id) == NO_ERROR){   
+                    G8RTOS_WriteFIFO(SPAWNCOOR_FIFO, coordsFIFO);
+                    num_cubes++;
+                    cube_id++;
+                }
             }
             else{
                 // in case I want to debug
                 G8RTOS_WaitSemaphore(&sem_UART);
                 UARTprintf("Cooked");
                 G8RTOS_SignalSemaphore(&sem_UART);
-            }
-            
+            }  
         }
         else if(~data & SW2){
             SW2P = 1;
@@ -318,6 +319,13 @@ void Read_Buttons() {
             G8RTOS_WaitSemaphore(&sem_KillCube);
             kill_cube = 1;
             G8RTOS_SignalSemaphore(&sem_KillCube);
+            if(num_cubes > 0){
+                num_cubes--;
+            }
+            else{
+                num_cubes = 0;
+            }
+            
         }
         else if(~data & SW3){
             SW3P = 1;
