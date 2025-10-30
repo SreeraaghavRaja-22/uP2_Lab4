@@ -327,7 +327,7 @@ void Read_Buttons() {
             uint32_t coordsFIFO = ((uint32_t)(((XVal + 100) & 0xFFF) << 20) | (uint32_t)(((YVal+100) & 0xFFF) << 8) | (uint32_t)((((-1) * ZVal + 20) & 0xFF)));
 
            
-            if(num_cubes < (MAX_THREADS - 4)){
+            if(num_cubes < (MAX_THREADS - 1 - 4)){
                 // only add Cube if there is space
                 if(G8RTOS_AddThread(Cube_Thread, 200, "Cube", cube_id) == NO_ERROR){   
                     G8RTOS_WriteFIFO(SPAWNCOOR_FIFO, coordsFIFO);

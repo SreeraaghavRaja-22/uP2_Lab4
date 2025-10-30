@@ -46,7 +46,7 @@ int main(void) {
 
     //fix floating point issues
     float num = 1.0 / 2.0; 
-    //FPUStackingDisable();
+    FPUStackingDisable();
 
     
     // get a random seed 
