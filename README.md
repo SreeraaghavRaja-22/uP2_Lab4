@@ -36,7 +36,7 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
   - use time.h for the header file for randomness (done)
   - Things to do:
     - Understand Cube Thread (done)
-    - Write CamMove Thread
+    - Write CamMove Thread (done but the values are inverted)
     - Write ReadButtons (done)
     - Write Read_JoystickPress (done)
     - Write Print_WorldCoords() (Period: 100ms) (done)
@@ -46,4 +46,12 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
 - Important Notes:
   - Disabled Periodic threads in SysTick to test code
   - when uncommenting out that portion, make sure to add a periodic thread to not mess stuff up!
-  
+
+- Issues I Think I Have:
+  - Joystick latency (Low Refresh Rate)
+  - Random Pixels Generated
+  - The clock may be a little low
+
+- Took 43 Hours but I'm DONE
+- 43 hours for parts C - E
+- 10 hours for parts A - B
