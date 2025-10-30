@@ -33,15 +33,15 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
     - Aperiodic threads must have the highest priority
   
 - Part E:
-  - use time.h for the header file for randomness
+  - use time.h for the header file for randomness (done)
   - Things to do:
-    - Understand Cube Thread
+    - Understand Cube Thread (done)
     - Write CamMove Thread
-    - Write ReadButtons
-    - Write Read_JoystickPress
-    - Write Print_WorldCoords() (Period: 100ms)
-    - Write Get_Joystick(Period: 100ms)
-    - Write GPIOD_Handler()
+    - Write ReadButtons (done)
+    - Write Read_JoystickPress (done)
+    - Write Print_WorldCoords() (Period: 100ms) (done)
+    - Write Get_Joystick(Period: 100ms) (done)
+    - Write GPIOD_Handler() (done)
   
 - Important Notes:
   - Disabled Periodic threads in SysTick to test code

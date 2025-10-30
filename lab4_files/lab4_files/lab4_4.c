@@ -41,6 +41,9 @@ int main(void) {
     // sysclock
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
+    // get a random seed 
+    srand(time(120));
+
     // Initializes the necessary peripherals.
     Multimod_Init();
 
@@ -70,7 +73,7 @@ int main(void) {
     //G8RTOS_AddThread(LCDThread, 8, "Penelope", 88);
 
     // PERIODIC THREADS
-    G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
+    //G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
     G8RTOS_Add_PeriodicEvent(Get_Joystick, 100, 7); // same period but staggered by 1 ms
     
     G8RTOS_Launch();

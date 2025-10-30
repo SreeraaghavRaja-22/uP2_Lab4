@@ -31,11 +31,18 @@ void MultimodButtons_Init() {
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE)){}
 
+    // disable interrupts before configuring 
+    GPIOIntDisable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+
     // set the interrupt Pin as an input from the perspective of the launchpad
     GPIOPinTypeGPIOInput(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
 
     // set the type of interrupt to falling edge
     GPIOIntTypeSet(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN, GPIO_FALLING_EDGE);
+
+    // Clear interrupt pin 
+    GPIOIntClear(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+    
     // Enable the pin interrupts 
     GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
 }

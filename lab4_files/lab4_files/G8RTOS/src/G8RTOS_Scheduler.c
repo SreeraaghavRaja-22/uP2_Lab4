@@ -141,6 +141,7 @@ void G8RTOS_Init() {
     NumberOfThreads = 0;
     NumberOfPThreads = 0;
     deadThreadIndex = 0;
+    
 }
 
 // G8RTOS_Launch
@@ -224,7 +225,9 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
         // wrap around by incrementing and going back down to 0 after 
         uint32_t currInd = (currDeadIndex + j) % MAX_THREADS;
         if(threadControlBlocks[currInd].isAlive){
+            // pick closes next alive thread and break
             nextAliveIndex = currInd;
+            break;
         }
     }
 
@@ -233,7 +236,9 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
         // wrap around by subtracting the current index by the iterator and mod with number of threads
         uint32_t currInd = (currDeadIndex - j + MAX_THREADS) % MAX_THREADS;
         if(threadControlBlocks[currInd].isAlive){
+            // pick closest / nearest previous alive thread and break
             prevAliveIndex = currInd;
+            break;
         }
     }
 
@@ -241,7 +246,7 @@ sched_ErrCode_t G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priority, ch
     IBit_State = StartCriticalSection();
     
     // check that num_threads == max_threads {return error code }
-    if(aliveCount >= MAX_THREADS){
+    if(aliveCount == MAX_THREADS){
         
         // end critical section early and exist function
         EndCriticalSection(IBit_State);

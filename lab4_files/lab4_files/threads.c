@@ -26,7 +26,7 @@
 // Change this to change the number of points that make up each line of a cube.
 // Note that if you set this too high you will have a stack overflow!
 // sizeof(float) * num_lines * (Num_Interpolated_Points + 2) = ?
-#define Num_Interpolated_Points 3
+#define Num_Interpolated_Points 5
 
 #define delay_0_1_s     (1600000/3)
 #define max_uint32_value (4294967295.0f)
@@ -59,6 +59,12 @@ uint8_t idle_count = 0;
 
 // FIFO vals
 uint32_t data = 0;
+
+// CubeID
+int32_t cube_id = 0 + 2000; // get IDs that no other threads are using
+
+// time value
+time_t val = 23;
 
 
 /*********************************Global Variables**********************************/
@@ -128,9 +134,15 @@ void Cube_Thread(void) {
     // Get spawn position
     uint32_t packet = G8RTOS_ReadFIFO(SPAWNCOOR_FIFO);
 
+    
+
     cube.x_pos = (packet >> 20 & 0xFFF) - 100;
     cube.y_pos = (packet >> 8 & 0xFFF) - 100;
     cube.z_pos = -(packet & 0xFF) - 20;
+
+    G8RTOS_WaitSemaphore(&sem_UART);
+    UARTprintf("Coordinates: (%d, %d, %d)\n\n", cube.x_pos, cube.y_pos, cube.z_pos);
+    G8RTOS_SignalSemaphore(&sem_UART);
 
     cube.width = 50;
     cube.height = 50;
@@ -205,16 +217,15 @@ void Cube_Thread(void) {
         }
 
         // If kill is set, killself after clearing the cube from the screen.
-        G8RTOS_WaitSemaphore(&sem_KillCube);
+        
         if (kill) {
+            G8RTOS_WaitSemaphore(&sem_KillCube);
             kill = 0;
-            // G8RTOS_WaitSemaphore(&sem_SPI);
-            // ST7789_Fill(ST7789_BLACK);
-            // G8RTOS_SignalSemaphore(&sem_SPI);
+            G8RTOS_SignalSemaphore(&sem_KillCube);
             G8RTOS_KillSelf();
             num_cubes--;
         }
-        G8RTOS_SignalSemaphore(&sem_KillCube);
+        
 
         // Get relative view points (for perspective calculations)
         for (int i = 0; i < 8; i++) {
@@ -259,60 +270,67 @@ void Read_Buttons() {
         // sleep for a bit
         sleep(10);
 
-        uint32_t data = GPIOPinRead(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+        //uint32_t data = GPIOPinRead(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
 
-        if(data == 0){
-            G8RTOS_WaitSemaphore(&sem_I2CA);
-            uint8_t data = MultimodButtons_Get();
-            G8RTOS_SignalSemaphore(&sem_I2CA);
+        
+        G8RTOS_WaitSemaphore(&sem_I2CA);
+        uint8_t data = MultimodButtons_Get();
+        G8RTOS_SignalSemaphore(&sem_I2CA);
 
-            uint8_t SW1P = 0;
-            uint8_t SW2P = 0;
-            uint8_t SW3P = 0;
-            uint8_t SW4P = 0;
-            int16_t XVal = 0; 
-            int16_t YVal = 0; 
-            int16_t ZVal = 0;
+        
 
-            if(~data & SW1){
-                SW1P = 1;
+        uint8_t SW1P = 0;
+        uint8_t SW2P = 0;
+        uint8_t SW3P = 0;
+        uint8_t SW4P = 0;
+        int16_t XVal = 0; 
+        int16_t YVal = 0; 
+        int16_t ZVal = 0;
 
-                // get random X, Y, and Z values
-                XVal = (rand() % 201) - 100;
-                YVal = (rand() % 201) - 100;
-                ZVal = (rand() % 101) - 120;
+        if(~data & SW1){
+            SW1P = 1;
 
-                // send the data as a packet to the SPAWNCOOR FIFO
-                uint32_t coordsFIFO = ((uint32_t)((XVal << 20 & 0xFFF) + 100) | (uint32_t)((XVal << 8 & 0xFFF) + 100) | (uint32_t)((ZVal & 0xFF) + 20));
+            // get random X, Y, and Z values
+            XVal = (rand() % 201) - 100;
+            YVal = (rand() % 201) - 100;
+            ZVal = (rand() % 101) - 120;
+
+            // send the data as a packet to the SPAWNCOOR FIFO
+            uint32_t coordsFIFO = ((uint32_t)(((XVal + 100) & 0xFFF) << 20) | (uint32_t)(((YVal+100) & 0xFFF) << 8) | (uint32_t)((((-1) * ZVal + 20) & 0xFF)));
+
+            // only add Cube if there is space
+            if(G8RTOS_AddThread(Cube_Thread, 200, "Cube", cube_id) == NO_ERROR){   
                 G8RTOS_WriteFIFO(SPAWNCOOR_FIFO, coordsFIFO);
-
-                // only add Cube if there is space
-                if(MAX_THREADS - num_cubes != 0)
-                {   
-                    G8RTOS_AddThread(Cube_Thread, 200, "Cube", 200);
-                    num_cubes++;
-                }
-                
+                num_cubes++;
+                cube_id++;
             }
-            else if(~data & SW2){
-                SW2P = 1;
-                // set this to 1
-                kill_cube = 1;
+            else{
+                // in case I want to debug
+                G8RTOS_WaitSemaphore(&sem_UART);
+                UARTprintf("Cooked");
+                G8RTOS_SignalSemaphore(&sem_UART);
             }
             
-            // these are just for fun
-            else if(~data & SW3){
-                SW3P = 1;
-            }
-            else if(~data & SW4){
-                SW4P = 1;
-            }
-
-            G8RTOS_WaitSemaphore(&sem_UART);
-            UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
-            // UARTprintf("Data: %x\n\n", data);
-            G8RTOS_SignalSemaphore(&sem_UART);
         }
+        else if(~data & SW2){
+            SW2P = 1;
+            // set this to 1
+            G8RTOS_WaitSemaphore(&sem_KillCube);
+            kill_cube = 1;
+            G8RTOS_SignalSemaphore(&sem_KillCube);
+        }
+        else if(~data & SW3){
+            SW3P = 1;
+        }
+        else if(~data & SW4){
+            SW4P = 1;
+        }
+
+        G8RTOS_WaitSemaphore(&sem_UART);
+        UARTprintf("SW1: %u, SW2: %u, SW3: %u, SW4: %u\n\n", SW1P, SW2P, SW3P, SW4P);
+        // UARTprintf("Data: %x\n\n", data);
+        G8RTOS_SignalSemaphore(&sem_UART);
+        
 
         // this helps prevent the pin from activating on a rising edge (weird issue I ran into)
         uint8_t released;
@@ -323,9 +341,11 @@ void Read_Buttons() {
             sleep(1);
         } while (~released & (SW1 | SW2 | SW3 | SW4));
 
+        GPIOIntClear(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
         GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
     }
 }
+
 
 void Read_JoystickPress() {
     for(;;){
