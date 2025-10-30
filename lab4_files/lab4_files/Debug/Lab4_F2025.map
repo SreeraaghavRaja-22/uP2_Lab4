@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v20.2.7                     
 ******************************************************************************
->> Linked Thu Oct 30 08:49:34 2025
+>> Linked Thu Oct 30 09:03:29 2025
 
 OUTPUT FILE NAME:   <Lab4_F2025.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00004c0d
@@ -54,7 +54,7 @@ section   page    origin      length       input sections
                   00003738    000001a0     multimod_spi.obj (.text)
                   000038d8    00000178     multimod_LaunchpadLED.obj (.text)
                   00003a50    0000016c     driverlib.lib : gpio.obj (.text:GPIOPadConfigSet)
-                  00003bbc    00000140     lab4_4.obj (.text)
+                  00003bbc    00000140     lab4_final.obj (.text)
                   00003cfc    00000138     multimod_OPT3001.obj (.text)
                   00003e34    00000118     driverlib.lib : sysctl.obj (.text:SysCtlClockGet)
                   00003f4c    00000108     multimod_joystick.obj (.text)
@@ -234,7 +234,7 @@ MODULE SUMMARY
        threads.obj                    3320    0         98     
        uartstdio.obj                  1192    46        5      
        tm4c123gh6pm_startup_ccs.obj   12      620       0      
-       lab4_4.obj                     320     0         32     
+       lab4_final.obj                 320     0         32     
     +--+------------------------------+-------+---------+---------+
        Total:                         4844    666       135    
                                                                
