@@ -14,6 +14,8 @@
 #include "./MultimodDrivers/multimod.h"
 
 #include "./threads.h"
+#include <driverlib/fpu.h>
+#include "time.h"
 
 /************************************Includes***************************************/
 
@@ -41,6 +43,12 @@ int main(void) {
     // sysclock
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
+
+    //fix floating point issues
+    float num = 1.0 / 2.0; 
+    //FPUStackingDisable();
+
+    
     // get a random seed 
     srand(time(120));
 
@@ -68,12 +76,14 @@ int main(void) {
     // APERIODIC THREAD
     G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
     G8RTOS_Add_APeriodicEvent(GPIOD_Handler, 2, INT_GPIOD);
+
+    // Background Threads
     G8RTOS_AddThread(Read_Buttons, 2, "Odysseus", 24);
     G8RTOS_AddThread(Read_JoystickPress, 1, "Telemachus", 22);
-    //G8RTOS_AddThread(LCDThread, 8, "Penelope", 88);
+    G8RTOS_AddThread(CamMove_Thread, 3, "Penelope", 88);
 
     // PERIODIC THREADS
-    //G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
+    G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
     G8RTOS_Add_PeriodicEvent(Get_Joystick, 100, 7); // same period but staggered by 1 ms
     
     G8RTOS_Launch();

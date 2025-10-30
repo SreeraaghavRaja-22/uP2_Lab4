@@ -49,7 +49,7 @@ Quat_t world_view_rot_inverse = {1, 0, 0, 0};
 uint8_t num_cubes = 0;
 
 // y-axis controls z or y
-uint8_t joystick_y = 1;
+volatile uint8_t joystick_y = 1;
 
 // Kill a cube?
 uint8_t kill_cube = 0;
@@ -107,21 +107,50 @@ void CamMove_Thread(void) {
     float mag;
 
 
-    while(1) {
+    for(;;){
         result = G8RTOS_ReadFIFO(JOYSTICK_FIFO);
+
+        joystickX = (int16_t)(result>>16);
+        joystickY = (int16_t)(result&0xFFFF);
+
+        // G8RTOS_WaitSemaphore(&sem_UART);
+        // UARTprintf("Camera vals: %d, %d\n\n", joystickX, joystickY);
+        // G8RTOS_SignalSemaphore(&sem_UART);
+
+        // Center values (approximated) from UART 9could be different when testing)
+        joystickX -= 2081;
+        joystickY -= 1999;
+
         
+        // let there be a zone where the joystick has to exceed a value before it can move -- avoids drift (another issue I ran into)
+         if(abs(joystickX) < 100){
+             joystickX = 0;
+         }
 
-        joystickX_norm = (float)((uint16_t)(result>>16)/(4096.0f));
-        joystickY_norm = (float)((uint16_t)(result)/(4096.0f));
+         if(abs(joystickY) < 100){
+             joystickY = 0;
+         }
+        
+         IBit_State = StartCriticalSection();
+         joystickX_norm = -1 * joystickX / 2048.0f;
+         joystickY_norm = -1 * joystickY / 2048.0f;
 
-        world_camera_pos.x -= joystickX_norm;
-
-        if (joystick_y) {
-            world_camera_pos.y += joystickY_norm;
-        } else {
-            world_camera_pos.z -= joystickY_norm;
-        }
-
+         if(joystickX_norm != 0){
+             world_camera_pos.x -= joystickX_norm;
+         }
+        
+         if(joystick_y){
+             if(joystickY_norm != 0){
+                 world_camera_pos.y += joystickY_norm;
+             }
+         }
+         else{
+             if(joystickY_norm != 0){
+                 world_camera_pos.z += joystickY_norm;
+             }
+         }
+        
+        EndCriticalSection(IBit_State);
         sleep(10);
     }
 }
@@ -309,7 +338,7 @@ void Read_Buttons() {
             else{
                 // in case I want to debug
                 G8RTOS_WaitSemaphore(&sem_UART);
-                UARTprintf("Cooked");
+                UARTprintf("Cooked\n\n");
                 G8RTOS_SignalSemaphore(&sem_UART);
             }  
         }
@@ -319,6 +348,8 @@ void Read_Buttons() {
             G8RTOS_WaitSemaphore(&sem_KillCube);
             kill_cube = 1;
             G8RTOS_SignalSemaphore(&sem_KillCube);
+
+            // need this so that we don't get extremely high cube numbers (wrap-around)
             if(num_cubes > 0){
                 num_cubes--;
             }
@@ -361,9 +392,8 @@ void Read_JoystickPress() {
         sleep(10);
         uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
         if(data == 0){
-            G8RTOS_WaitSemaphore(&sem_UART);
-            UARTprintf("Joystick value: %u\n\n", data);
-            G8RTOS_SignalSemaphore(&sem_UART);
+            // toggle joystick flag value
+            joystick_y = !joystick_y;
         }
         GPIOIntEnable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
     }
@@ -377,13 +407,15 @@ void Print_WorldCoords(void) {
 }
 
 void Get_Joystick(void) {
-    G8RTOS_WriteFIFO(JOYSTICK_FIFO, JOYSTICK_GetXY());
 
-    /*
-    G8RTOS_WaitSemaphore(&sem_UART);
-    UARTprintf("Joystick Data\n\n X: %u, Y:%u\n\n", (uint16_t)(data>>16), (uint16_t)data);
-    G8RTOS_SignalSemaphore(&sem_UART);
-    */
+    uint32_t data = JOYSTICK_GetXY();
+    G8RTOS_WriteFIFO(JOYSTICK_FIFO, data);
+
+    
+    // G8RTOS_WaitSemaphore(&sem_UART);
+    // UARTprintf("Joystick Data\n\n X: %u, Y:%u\n\n", (uint16_t)(data>>16), (uint16_t)data);
+    // G8RTOS_SignalSemaphore(&sem_UART);
+    
 }
 /********************************Periodic Threads***********************************/
 
