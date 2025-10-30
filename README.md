@@ -42,6 +42,7 @@ This is microprocessor applications lab 4 (second implementation of an RTOS)
     - Write Print_WorldCoords() (Period: 100ms) (done)
     - Write Get_Joystick(Period: 100ms) (done)
     - Write GPIOD_Handler() (done)
+    - Fix Refresh Rate when adding a lot of threads (tbd)
   
 - Important Notes:
   - Disabled Periodic threads in SysTick to test code
