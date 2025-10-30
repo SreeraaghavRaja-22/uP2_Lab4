@@ -18,6 +18,8 @@
 /************************************Includes***************************************/
 
 /*************************************Defines***************************************/
+#define JOYSTICK_FIFO 0
+#define SPAWNCOOR_FIFO 1
 /*************************************Defines***************************************/
 
 /********************************Public Variables***********************************/
@@ -42,27 +44,35 @@ int main(void) {
     // Initializes the necessary peripherals.
     Multimod_Init();
 
-    ST7789_Fill(ST7789_WHITE);
+    ST7789_Fill(ST7789_BLACK);
    
     // Add threads, initialize semaphores here!
     G8RTOS_InitSemaphore(&sem_UART, UART_Resources);
     G8RTOS_InitSemaphore(&sem_I2CA, I2C_Resources);
     G8RTOS_InitSemaphore(&sem_SPI, SPI_Resources);
-    G8RTOS_InitSemaphore(&sem_MMB, MMB_Resources);
+    G8RTOS_InitSemaphore(&sem_PCA9555, MMB_Resources);
     G8RTOS_InitSemaphore(&sem_JOY, JOY_Resources);
+    G8RTOS_InitSemaphore(&sem_KillCube, KillCube_Resources);
 
     // initialize the FIFOs
-    G8RTOS_InitFIFO(0);
+    G8RTOS_InitFIFO(JOYSTICK_FIFO);
+    G8RTOS_InitFIFO(SPAWNCOOR_FIFO);
     G8RTOS_Init();
+
+    // IDLE THREAD
+    G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
+
+    // APERIODIC THREAD
     G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
     G8RTOS_Add_APeriodicEvent(GPIOD_Handler, 2, INT_GPIOD);
     G8RTOS_AddThread(Read_Buttons, 2, "Odysseus", 24);
     G8RTOS_AddThread(Read_JoystickPress, 1, "Telemachus", 22);
-    G8RTOS_AddThread(LCDThread, 8, "Penelope", 88);
-    G8RTOS_AddThread(Get_Joystick, 11, "Athena", 100);
-    //G8RTOS_Add_PeriodicEvent(PThread1, 300, 300);
-    // G8RTOS_Add_PeriodicEvent(PThread2, 310, 300); // same period but staggered by 1 ms
-    G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
+    //G8RTOS_AddThread(LCDThread, 8, "Penelope", 88);
+
+    // PERIODIC THREADS
+    G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
+    G8RTOS_Add_PeriodicEvent(Get_Joystick, 100, 7); // same period but staggered by 1 ms
+    
     G8RTOS_Launch();
 
     // spin - the RTOS will take over now

@@ -19,6 +19,7 @@
 #define SW_Resources 0
 #define MMB_Resources 0 
 #define JOY_Resources 0
+#define KillCube_Resources 1
 /*************************************Defines***************************************/
 
 /******************************Data Type Definitions********************************/
