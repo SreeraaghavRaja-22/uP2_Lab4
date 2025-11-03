@@ -59,11 +59,6 @@ void PThread2(void);
 void LCDThread(void);
 
 
-
-
-
-
-
 /********************************Thread Functions***********************************/
 
 
