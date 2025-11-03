@@ -50,6 +50,7 @@ typedef struct Snake{
     int32_t* tail; 
     loc snk_val;
     dir snk_dir; 
+    bool alive;
 } Snake; 
 
 
