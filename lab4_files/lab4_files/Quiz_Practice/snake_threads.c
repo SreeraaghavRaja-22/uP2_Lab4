@@ -45,12 +45,19 @@ typedef enum dir{
 // Create a 2-D array for the snake size 
 loc snake_array[S_R_MAX][S_C_MAX];
 
+// struct for the point a snake is at
+typedef struct Point{
+    int32_t x; 
+    int32_t y;
+} Point; 
+
 typedef struct Snake{
-    int32_t* head; 
-    int32_t* tail; 
+    loc snake_array[S_R_MAX][S_C_MAX];
+    Point current_point;
     loc snk_val;
     dir snk_dir; 
     bool alive;
+    loc orange_count;
 } Snake; 
 
 
