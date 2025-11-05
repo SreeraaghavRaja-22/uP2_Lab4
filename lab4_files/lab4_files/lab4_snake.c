@@ -13,7 +13,7 @@
 #include "G8RTOS/G8RTOS.h"
 #include "./MultimodDrivers/multimod.h"
 
-#include "./threads.h"
+#include "./Quiz_Practice/snake_threads.h"
 #include <driverlib/fpu.h>
 #include "time.h"
 
@@ -45,12 +45,12 @@ int main(void) {
 
 
     //fix floating point issues
-    float num = 1.0 / 2.0; 
-    FPUStackingDisable();
+    //float num = 1.0 / 2.0; 
+    //FPUStackingDisable();
 
     
     // get a random seed 
-    srand(time(120));
+    //srand(time(120));
 
     // Initializes the necessary peripherals.
     Multimod_Init();
@@ -65,26 +65,16 @@ int main(void) {
     G8RTOS_InitSemaphore(&sem_JOY, JOY_Resources);
     G8RTOS_InitSemaphore(&sem_KillCube, KillCube_Resources);
 
-    // initialize the FIFOs
-    G8RTOS_InitFIFO(JOYSTICK_FIFO);
-    G8RTOS_InitFIFO(SPAWNCOOR_FIFO);
     G8RTOS_Init();
 
     // IDLE THREAD
     G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
 
-    // APERIODIC THREAD
-    G8RTOS_Add_APeriodicEvent(GPIOE_Handler, 4, INT_GPIOE);
-    G8RTOS_Add_APeriodicEvent(GPIOD_Handler, 2, INT_GPIOD);
-
     // Background Threads
-    G8RTOS_AddThread(Read_Buttons, 2, "Odysseus", 24);
-    G8RTOS_AddThread(Read_JoystickPress, 1, "Telemachus", 22);
-    G8RTOS_AddThread(CamMove_Thread, 3, "Penelope", 88);
+    G8RTOS_AddThread(Block_Init, 20, "BLOCK_INIT", 1);
 
     // PERIODIC THREADS
-    G8RTOS_Add_PeriodicEvent(Print_WorldCoords, 100, 6);
-    G8RTOS_Add_PeriodicEvent(Get_Joystick, 100, 7); // same period but staggered by 1 ms
+    G8RTOS_Add_PeriodicEvent(Game_Update, 60, 6); // same period but staggered by 1 ms
     
     G8RTOS_Launch();
 

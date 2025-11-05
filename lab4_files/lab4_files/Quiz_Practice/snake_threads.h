@@ -18,12 +18,15 @@ semaphore_t sem_UART;
 semaphore_t sem_I2CA;
 semaphore_t sem_SPI;
 semaphore_t sem_SW1;
+semaphore_t sem_JOY;
 semaphore_t sem_PCA9555;
 semaphore_t sem_KillCube;
 /***********************************Semaphores**************************************/
 
 // thread definitions
-void Idle_Thread(void);
+static void Idle_Thread(void);
+void Block_Init(void);
+void Game_Update(void);
 
 
 

@@ -71,24 +71,41 @@ typedef struct Block{
 /*********************************Global Variables**********************************/
 // define global square entity based on block struct
 Block square;
+bool game_begin = true;
 /*************************************Threads***************************************/
 
 // Working Threads 
-void Idle_Thread(void) {
+static void Idle_Thread(void) {
     for(;;){
     }
 }
 
 void Block_Init(void){
-    square.current_point.row= 5; 
-    square.current_point.col = 5; 
-    square.snk_dir = RIGHT;
-    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
+    for(;;){
+        if(game_begin){
+            square.current_point.row = 50; 
+            square.current_point.col = 50; 
+            square.snk_dir = RIGHT;
+            G8RTOS_WaitSemaphore(&sem_SPI);
+            ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
+            G8RTOS_SignalSemaphore(&sem_SPI);
+            game_begin = false;
+        }
+        else{
+            // G8RTOS_WaitSemaphore(&sem_SPI);
+            // ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
+            // G8RTOS_SignalSemaphore(&sem_SPI);
+        }
+
+
+    }
 }
 
 void Game_Update(void){
 
-    ST7789_Fill(ST7789_BLACK);
+    G8RTOS_WaitSemaphore(&sem_SPI);
+    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_BLACK);
+    G8RTOS_SignalSemaphore(&sem_SPI);
 
     //check for square's direction
     if(square.snk_dir == UP){
@@ -103,6 +120,9 @@ void Game_Update(void){
     else{
         square.current_point.col++;
     }
+    
 
-    ST7789_DrawRectangle(square.current_point.row, square.current_point.col, 10, 10, ST7789_WHITE);
+    G8RTOS_WaitSemaphore(&sem_SPI);
+    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
+    G8RTOS_SignalSemaphore(&sem_SPI);
 }
