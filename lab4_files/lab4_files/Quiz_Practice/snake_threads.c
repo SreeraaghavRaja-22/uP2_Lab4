@@ -47,8 +47,8 @@ loc snake_array[S_R_MAX][S_C_MAX];
 
 // struct for the point a snake is at
 typedef struct Point{
-    int32_t x; 
-    int32_t y;
+    int16_t row; 
+    int16_t col;
 } Point; 
 
 typedef struct Snake{
@@ -60,9 +60,17 @@ typedef struct Snake{
     loc orange_count;
 } Snake; 
 
+typedef struct Block{
+    Point current_point;
+    dir snk_dir; 
+} Block;
+
+
+
 
 /*********************************Global Variables**********************************/
-
+// define global square entity based on block struct
+Block square;
 /*************************************Threads***************************************/
 
 // Working Threads 
@@ -71,4 +79,30 @@ void Idle_Thread(void) {
     }
 }
 
-// 
+void Block_Init(void){
+    square.current_point.row= 5; 
+    square.current_point.col = 5; 
+    square.snk_dir = RIGHT;
+    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
+}
+
+void Game_Update(void){
+
+    ST7789_Fill(ST7789_BLACK);
+
+    //check for square's direction
+    if(square.snk_dir == UP){
+        square.current_point.row++;
+    }
+    else if(square.snk_dir == DOWN){
+        square.current_point.row--;
+    }
+    else if(square.snk_dir == LEFT){
+        square.current_point.col--;
+    }
+    else{
+        square.current_point.col++;
+    }
+
+    ST7789_DrawRectangle(square.current_point.row, square.current_point.col, 10, 10, ST7789_WHITE);
+}
