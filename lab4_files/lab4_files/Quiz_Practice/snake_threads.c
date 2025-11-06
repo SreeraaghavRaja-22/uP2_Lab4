@@ -1,19 +1,11 @@
-// G8RTOS_Threads.c
-// Date Created: 2023-07-25
-// Date Updated: 2025-07-27
-// Defines for thread functions.
 
 /************************************Includes***************************************/
 
-#include "threads.h"
+#include "./Quiz_Practice/snake_threads.h"
 #include "G8RTOS/G8RTOS_Scheduler.h"
 #include "G8RTOS/G8RTOS_IPC.h"
 
 #include "./MultimodDrivers/multimod.h"
-#include "./MiscFunctions/Shapes/inc/cube.h"
-#include "./MiscFunctions/LinAlg/inc/linalg.h"
-#include "./MiscFunctions/LinAlg/inc/quaternions.h"
-#include "./MiscFunctions/LinAlg/inc/vect3d.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +16,12 @@
 /*************************************Defines***************************************/
 #define S_R_MAX 50
 #define S_C_MAX 50
+#define JOY_U_BOUND (2048+250)
+#define JOY_L_BOUND (2048-250)
+#define PIX_OFFSET 5
+#define GRID_W 24
+#define GRID_L 28
+#define PIX_SQU 10
 /*************************************Defines***************************************/
 
 /*********************************Global Variables**********************************/
@@ -39,7 +37,8 @@ typedef enum dir{
     UP = 0, 
     DOWN = 1, 
     LEFT = 2, 
-    RIGHT = 3
+    RIGHT = 3, 
+    NONE = 4
 } dir;
 
 // Create a 2-D array for the snake size 
@@ -70,12 +69,76 @@ typedef struct Block{
 
 /*********************************Global Variables**********************************/
 // define global square entity based on block struct
-Block square;
-bool game_begin = true;
+static Block square;
+static Block orange;
+static bool game_begin = true;
+static bool game_over = false;
+static uint16_t joy_data_x;
+static uint16_t joy_data_y;
+
+
+/*********************************** FUNCTIONS ********************************/
+
+void draw_block(Block* block, uint16_t color);
+void spawn_orange(void);
+static void check_edge(void);
+static void check_dir(void);
+
+// just a function (don't care about prototypes)
+void draw_block(Block* block, uint16_t color){
+    G8RTOS_WaitSemaphore(&sem_SPI);
+    ST7789_DrawRectangle((*block).current_point.col, (*block).current_point.row, 10, 10, color);
+    G8RTOS_SignalSemaphore(&sem_SPI);
+}
+
+void spawn_orange(void){
+        orange.current_point.col = rand() % (X_MAX / PIX_SQU) * PIX_SQU + 5;
+        orange.current_point.row = rand() % (Y_MAX / PIX_SQU) * PIX_SQU + 5;
+        draw_block(&orange, ST7789_ORANGE);
+}
+
+void check_edge(){
+    // edge cases for the blocks
+    if(square.current_point.col + 5 == X_MAX){
+        square.current_point.col = 5;
+    }
+    else if(square.current_point.col - 5 == 0){
+        square.current_point.col = X_MAX - 5;
+    }
+    else if(square.current_point.row + 5 == Y_MAX){
+        square.current_point.row = 5;
+    }
+    else if(square.current_point.row - 5 == 0){
+        square.current_point.row = Y_MAX-5;
+    }
+}
+
+static void check_dir(){
+    // check for square's direction
+    if(square.snk_dir == UP){
+        square.current_point.row += 10;
+    }
+    else if(square.snk_dir == DOWN){
+        square.current_point.row -= 10;
+    }
+    else if(square.snk_dir == LEFT){
+        square.current_point.col -= 10;
+    }
+    else if(square.snk_dir == RIGHT){
+        square.current_point.col += 10;
+    }
+}
+
+void check_collision(){
+    //
+}
 /*************************************Threads***************************************/
 
+
+
+
 // Working Threads 
-static void Idle_Thread(void) {
+void Idle_Thread_Snake(void) {
     for(;;){
     }
 }
@@ -83,46 +146,62 @@ static void Idle_Thread(void) {
 void Block_Init(void){
     for(;;){
         if(game_begin){
-            square.current_point.row = 50; 
-            square.current_point.col = 50; 
+            square.current_point.row = 55; 
+            square.current_point.col = 55; 
             square.snk_dir = RIGHT;
-            G8RTOS_WaitSemaphore(&sem_SPI);
-            ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
-            G8RTOS_SignalSemaphore(&sem_SPI);
+
+            spawn_orange();
+
+            draw_block(&square, ST7789_WHITE);
+
             game_begin = false;
         }
-        else{
-            // G8RTOS_WaitSemaphore(&sem_SPI);
-            // ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
-            // G8RTOS_SignalSemaphore(&sem_SPI);
+        
+        if(game_over){
+            G8RTOS_WaitSemaphore(&sem_SPI);
+            ST7789_Fill(ST7789_ORANGE);
+            G8RTOS_SignalSemaphore(&sem_SPI);
         }
-
-
     }
 }
+
 
 void Game_Update(void){
 
-    G8RTOS_WaitSemaphore(&sem_SPI);
-    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_BLACK);
-    G8RTOS_SignalSemaphore(&sem_SPI);
+    draw_block(&square, ST7789_BLACK);
+    check_dir();
+    check_edge();
 
-    //check for square's direction
-    if(square.snk_dir == UP){
-        square.current_point.row++;
+    if((square.current_point.row + PIX_OFFSET == orange.current_point.row - PIX_OFFSET)){
+        draw_block(&orange, ST7789_BLACK);
+        spawn_orange();
     }
-    else if(square.snk_dir == DOWN){
-        square.current_point.row--;
+    else if((square.current_point.row - PIX_OFFSET == orange.current_point.row + PIX_OFFSET)){
+        draw_block(&orange, ST7789_BLACK);
+        spawn_orange();
     }
-    else if(square.snk_dir == LEFT){
-        square.current_point.col--;
-    }
-    else{
-        square.current_point.col++;
-    }
-    
 
-    G8RTOS_WaitSemaphore(&sem_SPI);
-    ST7789_DrawRectangle(square.current_point.col, square.current_point.row, 10, 10, ST7789_WHITE);
-    G8RTOS_SignalSemaphore(&sem_SPI);
+    draw_block(&square, ST7789_WHITE);
 }
+
+// periodic thread
+void Get_Joystick_Snake(void) {
+
+    joy_data_x = JOYSTICK_GetX();
+    joy_data_y = JOYSTICK_GetY();
+
+    if(joy_data_x <= JOY_L_BOUND){
+        square.snk_dir = RIGHT;
+    }
+    else if(joy_data_x >= JOY_U_BOUND){
+        square.snk_dir = LEFT;
+    }
+    else if(joy_data_y <= JOY_L_BOUND){
+        square.snk_dir = DOWN;
+    }
+    else if(joy_data_y >= JOY_U_BOUND){
+        square.snk_dir = UP;
+    }
+}
+
+

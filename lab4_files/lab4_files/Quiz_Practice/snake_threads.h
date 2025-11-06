@@ -24,9 +24,11 @@ semaphore_t sem_KillCube;
 /***********************************Semaphores**************************************/
 
 // thread definitions
-static void Idle_Thread(void);
+void Idle_Thread_Snake(void);
 void Block_Init(void);
 void Game_Update(void);
+void Get_Joystick_Snake(void);
+void Restart_Game(void);
 
 
 

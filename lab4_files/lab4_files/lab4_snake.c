@@ -20,8 +20,6 @@
 /************************************Includes***************************************/
 
 /*************************************Defines***************************************/
-#define JOYSTICK_FIFO 0
-#define SPAWNCOOR_FIFO 1
 /*************************************Defines***************************************/
 
 /********************************Public Variables***********************************/
@@ -68,13 +66,14 @@ int main(void) {
     G8RTOS_Init();
 
     // IDLE THREAD
-    G8RTOS_AddThread(Idle_Thread, MIN_PRIORITY, "IDLE", 200);
+    G8RTOS_AddThread(Idle_Thread_Snake, MIN_PRIORITY, "IDLE", 200);
 
     // Background Threads
     G8RTOS_AddThread(Block_Init, 20, "BLOCK_INIT", 1);
 
     // PERIODIC THREADS
-    G8RTOS_Add_PeriodicEvent(Game_Update, 60, 6); // same period but staggered by 1 ms
+    G8RTOS_Add_PeriodicEvent(Game_Update, 200, 6); // same period but staggered by 1 ms
+    G8RTOS_Add_PeriodicEvent(Get_Joystick_Snake, 30, 7);
     
     G8RTOS_Launch();
 
