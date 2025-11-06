@@ -45,6 +45,8 @@ typedef struct Point{
 typedef struct Block{
     Point current_point; 
     bool is_moving; 
+    dir box_dir_x;
+    dir box_dir_y;
 } Block;
 
 
@@ -58,16 +60,19 @@ static uint16_t joy_data_x;
 static uint16_t joy_data_y;
 static Block rect_array[RECT_H][RECT_W];
 static int16_t color_array[6] = {ST7789_BLUE, ST7789_GREEN, ST7789_RED, ST7789_ORANGE, ST7789_WHITE, ST7789_YELLOW};
-static dir next_dir;
+static dir prev_dir_x;
+static dir prev_dir_y;
 
 /*********************************** FUNCTIONS ********************************/
 
 // Prototypes
 void draw_block_bk(Block* block, uint16_t color);
 void draw_segments(void);
-void spawn_orange(void);
+void draw_rect_bottom(int16_t color);
+void check_if_box(void);
+static void move_box(void);
 static void check_edge(void);
-static void move_snake(void);
+static void move_rect(void);
 static void check_lose(void);
 void check_collision(void);
 static inline dir opposite_dir(dir opp);
@@ -93,25 +98,37 @@ void draw_segments(){
     }
 }
 
-void draw_rect_bottom(){
+void draw_rect_bottom(int16_t color){
     G8RTOS_WaitSemaphore(&sem_SPI);
     ST7789_DrawRectangle(rect.current_point.col, rect.current_point.row, RECT_W_PIX, RECT_H_PIX, ST7789_WHITE);
     G8RTOS_SignalSemaphore(&sem_SPI);
 }
 
+void check_if_box(void){
+    for(int8_t i = 0; i < RECT_H; ++i){
+        for(int8_t j = 0; j < RECT_W; ++j){
+            // pass
+        }
+    }
+}
+
 static void check_edge(void){
     // edge cases for the blocks
-    if(box.current_point.col == X_MAX){
-        box.current_point.col--;
+    if(box.current_point.col + 5 >= X_MAX-1){
+        box.box_dir_x = LEFT;
     }
-    else if(box.current_point.col == 0){
-        box.current_point.col++;
+    else if(box.current_point.col - 5 <= 0){
+        box.box_dir_x = RIGHT;
     }
-    else if(box.current_point.row == Y_MAX){
-        box.current_point.row--;
+    else if(box.current_point.row + 5 >= Y_MAX-1){
+        box.box_dir_y = DOWN;
     }
-    else if(box.current_point.row == 0){
-        box.current_point.row++;
+    else if(box.current_point.row - 5 <= 0){
+        box.box_dir_y = UP;
+    }
+    else if(box.current_point.row - 5 <= 0 && box.current_point.col - 5 <= 0){
+        box.box_dir_x = RIGHT;
+        box.box_dir_y = DOWN;
     }
 }
 
@@ -151,10 +168,35 @@ static void move_box(void){
     // check for box's direction
     if(box.is_moving){
         draw_block_bk(&box, ST7789_BLACK);
-        box.current_point.col++;
-        box.current_point.row++;
-        draw_block_bk(&box, ST7789_GREEN);
+
+        if(box.box_dir_y == UP){
+            box.current_point.row+=10;
+        }
+        else{
+            box.current_point.row-=10;
+        }
+
+        if(box.box_dir_x == RIGHT){
+            box.current_point.col+=10;
+        }
+        else{
+            box.current_point.col-=10;
+        }
     }
+}
+
+static void move_rect(void){
+    draw_rect_bottom(ST7789_BLACK);
+    if(rect.box_dir_x == RIGHT){
+        rect.current_point.col += 10;
+    }
+    else if(rect.box_dir_x == LEFT){
+        rect.current_point.col -= 10;
+    }
+    else{
+        rect.current_point.col += 0; // this is to ragebait
+    }
+    draw_rect_bottom(ST7789_WHITE);
 }
 
 // void check_collision(void){
@@ -186,8 +228,10 @@ void BK_Init(void){
             box.current_point.col = X_MAX / 2 - 5;
             box.current_point.row = rect.current_point.row + RECT_H_PIX; // rect width
             box.is_moving = false; 
+            box.box_dir_x = RIGHT;
+            box.box_dir_y = UP;
             
-            draw_rect_bottom();
+            draw_rect_bottom(ST7789_WHITE);
             draw_block_bk(&box, ST7789_GREEN);
             game_begin = false;
         }
@@ -196,16 +240,23 @@ void BK_Init(void){
             draw_block_bk(&box, ST7789_BLUE);
         }
 
+        // sleep after initialization thread
+        sleep(10);
     }
 }
 
 void BK_Update(void){
     if(!game_over){
+        prev_dir_x = box.box_dir_x;
+        prev_dir_y = box.box_dir_y;
+        check_edge();
         move_box();
+        move_rect();
         // check_lose();
         // sleep(10);
         // check_collision();
         // draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
+        draw_block_bk(&box, ST7789_GREEN);
     }
 }
 
@@ -213,26 +264,20 @@ void BK_Update(void){
 void Get_Joystick_BK(void) {
 
     joy_data_x = JOYSTICK_GetX();
-    joy_data_y = JOYSTICK_GetY();
-    // if(!game_over){
-    //     dir proposed = snake.snk_dir;
+    //joy_data_y = JOYSTICK_GetY();
+    if(!game_over){
+        dir proposed_x = rect.box_dir_x;
     
-    //     if(joy_data_x <= JOY_L_BOUND){
-    //         proposed = RIGHT;
-    //     }
-    //     else if(joy_data_x >= JOY_U_BOUND){
-    //         proposed = LEFT;
-    //     }
-    //     else if(joy_data_y <= JOY_L_BOUND){
-    //         proposed = DOWN;
-    //     }
-    //     else if(joy_data_y >= JOY_U_BOUND){
-    //         proposed = UP;
-    //     }
-
-    //     if(proposed != opposite_dir(snake.snk_dir)){
-    //         next_dir = proposed;
-    //     }
+        if(joy_data_x <= JOY_L_BOUND){
+            proposed_x = RIGHT;
+        }
+        else if(joy_data_x >= JOY_U_BOUND){
+            proposed_x = LEFT;
+        }
+        else{
+            proposed_x = NONE; 
+        }
+    }
 }
 
 // void Game_Over(void){
