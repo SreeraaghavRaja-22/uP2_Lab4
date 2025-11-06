@@ -1,10 +1,5 @@
-// threads.h
-// Date Created: 2023-07-26
-// Date Updated: 2023-07-26
-// Threads
-
-#ifndef SNAKE_THREADS_H_
-#define SNAKE_THREADS_H_
+#ifndef BREAKOUT_THREADS_H_
+#define BREAKOUT_THREADS_H_
 
 /************************************Includes***************************************/
 
@@ -24,15 +19,16 @@ semaphore_t sem_KillCube;
 /***********************************Semaphores**************************************/
 
 // thread definitions
-void Idle_Thread_Snake(void);
-void Game_Init(void);
-void Game_Update(void);
-void Get_Joystick_Snake(void);
-void Game_Over(void);
-void Restart_Game(void);
-void Snake_GPIOE_Handler(void);
-void Snake_GPIOD_Handler(void);
+void Idle_Thread_Breakout(void);
+void BK_Init(void);
+void BK_Update(void);
+void Get_Joystick_BK(void);
+void Game_Over_BK(void);
+void Restart_BK(void);
+void Box_Mov(void);
+void BK_GPIOE_Handler(void);
+void BK_GPIOD_Handler(void);
 
 
 
-#endif /* SNAKE_THREADS_H */
+#endif /* BREAKOUT_THREADS_H */

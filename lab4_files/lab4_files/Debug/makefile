@@ -10,7 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./lab4_snake.obj" \
+"./lab4_breakout.obj" \
 "./threads.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
 "./uartstdio.obj" \
@@ -36,6 +36,7 @@ ORDERED_OBJS += \
 "./MultimodDrivers/src/multimod_joystick.obj" \
 "./MultimodDrivers/src/multimod_spi.obj" \
 "./MultimodDrivers/src/multimod_uart.obj" \
+"./Quiz_Practice/breakout_threads.obj" \
 "./Quiz_Practice/snake_threads.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
@@ -179,8 +180,9 @@ Lab4_F2025.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "lab4_snake.obj" "threads.obj" "tm4c123gh6pm_startup_ccs.obj" "uartstdio.obj" "G8RTOS\src\G8RTOS_CriticalSection.obj" "G8RTOS\src\G8RTOS_IPC.obj" "G8RTOS\src\G8RTOS_Scheduler.obj" "G8RTOS\src\G8RTOS_SchedulerASM.obj" "G8RTOS\src\G8RTOS_Semaphores.obj" "MiscFunctions\LinAlg\src\linalg.obj" "MiscFunctions\LinAlg\src\quaternions.obj" "MiscFunctions\LinAlg\src\vect3d.obj" "MiscFunctions\Shapes\src\cube.obj" "MultimodDrivers\src\multimod_BME280.obj" "MultimodDrivers\src\multimod_BMI160.obj" "MultimodDrivers\src\multimod_LaunchpadButtons.obj" "MultimodDrivers\src\multimod_LaunchpadLED.obj" "MultimodDrivers\src\multimod_OPT3001.obj" "MultimodDrivers\src\multimod_PCA9555.obj" "MultimodDrivers\src\multimod_PCA9956b.obj" "MultimodDrivers\src\multimod_ST7789.obj" "MultimodDrivers\src\multimod_buttons.obj" "MultimodDrivers\src\multimod_i2c.obj" "MultimodDrivers\src\multimod_joystick.obj" "MultimodDrivers\src\multimod_spi.obj" "MultimodDrivers\src\multimod_uart.obj" "Quiz_Practice\snake_threads.obj" 
-	-$(RM) "lab4_snake.d" "threads.d" "tm4c123gh6pm_startup_ccs.d" "uartstdio.d" "G8RTOS\src\G8RTOS_IPC.d" "G8RTOS\src\G8RTOS_Scheduler.d" "G8RTOS\src\G8RTOS_Semaphores.d" "MiscFunctions\LinAlg\src\linalg.d" "MiscFunctions\LinAlg\src\quaternions.d" "MiscFunctions\LinAlg\src\vect3d.d" "MiscFunctions\Shapes\src\cube.d" "MultimodDrivers\src\multimod_BME280.d" "MultimodDrivers\src\multimod_BMI160.d" "MultimodDrivers\src\multimod_LaunchpadButtons.d" "MultimodDrivers\src\multimod_LaunchpadLED.d" "MultimodDrivers\src\multimod_OPT3001.d" "MultimodDrivers\src\multimod_PCA9555.d" "MultimodDrivers\src\multimod_PCA9956b.d" "MultimodDrivers\src\multimod_ST7789.d" "MultimodDrivers\src\multimod_buttons.d" "MultimodDrivers\src\multimod_i2c.d" "MultimodDrivers\src\multimod_joystick.d" "MultimodDrivers\src\multimod_spi.d" "MultimodDrivers\src\multimod_uart.d" "Quiz_Practice\snake_threads.d" 
+	-$(RM) "lab4_breakout.obj" "threads.obj" "tm4c123gh6pm_startup_ccs.obj" "uartstdio.obj" "G8RTOS\src\G8RTOS_CriticalSection.obj" "G8RTOS\src\G8RTOS_IPC.obj" "G8RTOS\src\G8RTOS_Scheduler.obj" "G8RTOS\src\G8RTOS_SchedulerASM.obj" "G8RTOS\src\G8RTOS_Semaphores.obj" "MiscFunctions\LinAlg\src\linalg.obj" "MiscFunctions\LinAlg\src\quaternions.obj" "MiscFunctions\LinAlg\src\vect3d.obj" "MiscFunctions\Shapes\src\cube.obj" "MultimodDrivers\src\multimod_BME280.obj" "MultimodDrivers\src\multimod_BMI160.obj" "MultimodDrivers\src\multimod_LaunchpadButtons.obj" "MultimodDrivers\src\multimod_LaunchpadLED.obj" "MultimodDrivers\src\multimod_OPT3001.obj" "MultimodDrivers\src\multimod_PCA9555.obj" "MultimodDrivers\src\multimod_PCA9956b.obj" "MultimodDrivers\src\multimod_ST7789.obj" "MultimodDrivers\src\multimod_buttons.obj" "MultimodDrivers\src\multimod_i2c.obj" "MultimodDrivers\src\multimod_joystick.obj" "MultimodDrivers\src\multimod_spi.obj" "MultimodDrivers\src\multimod_uart.obj" "Quiz_Practice\breakout_threads.obj" 
+	-$(RM) "Quiz_Practice\snake_threads.obj" 
+	-$(RM) "lab4_breakout.d" "threads.d" "tm4c123gh6pm_startup_ccs.d" "uartstdio.d" "G8RTOS\src\G8RTOS_IPC.d" "G8RTOS\src\G8RTOS_Scheduler.d" "G8RTOS\src\G8RTOS_Semaphores.d" "MiscFunctions\LinAlg\src\linalg.d" "MiscFunctions\LinAlg\src\quaternions.d" "MiscFunctions\LinAlg\src\vect3d.d" "MiscFunctions\Shapes\src\cube.d" "MultimodDrivers\src\multimod_BME280.d" "MultimodDrivers\src\multimod_BMI160.d" "MultimodDrivers\src\multimod_LaunchpadButtons.d" "MultimodDrivers\src\multimod_LaunchpadLED.d" "MultimodDrivers\src\multimod_OPT3001.d" "MultimodDrivers\src\multimod_PCA9555.d" "MultimodDrivers\src\multimod_PCA9956b.d" "MultimodDrivers\src\multimod_ST7789.d" "MultimodDrivers\src\multimod_buttons.d" "MultimodDrivers\src\multimod_i2c.d" "MultimodDrivers\src\multimod_joystick.d" "MultimodDrivers\src\multimod_spi.d" "MultimodDrivers\src\multimod_uart.d" "Quiz_Practice\breakout_threads.d" "Quiz_Practice\snake_threads.d" 
 	-$(RM) "G8RTOS\src\G8RTOS_CriticalSection.d" "G8RTOS\src\G8RTOS_SchedulerASM.d" 
 	-@echo 'Finished clean'
 	-@echo ' '

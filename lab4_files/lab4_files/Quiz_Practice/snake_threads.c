@@ -341,8 +341,7 @@ void Restart_Game(void){
     }
 }
 
-
-void Snake_GPIOD_Handler() {
+void Snake_GPIOD_Handler(void) {
     GPIOIntDisable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
    	GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
     G8RTOS_SignalSemaphore(&sem_JOY);

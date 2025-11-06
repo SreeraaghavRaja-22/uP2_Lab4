@@ -30,7 +30,6 @@ void Game_Update(void);
 void Get_Joystick_Snake(void);
 void Game_Over(void);
 void Restart_Game(void);
-void Snake_GPIOE_Handler(void);
 void Snake_GPIOD_Handler(void);
 
 

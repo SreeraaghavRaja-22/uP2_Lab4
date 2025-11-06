@@ -1,7 +1,7 @@
 
 /************************************Includes***************************************/
 
-#include "./Quiz_Practice/snake_threads.h"
+#include "./Quiz_Practice/breakout_threads.h"
 #include "G8RTOS/G8RTOS_Scheduler.h"
 #include "G8RTOS/G8RTOS_IPC.h"
 
@@ -20,18 +20,14 @@
 #define PIX_OFFSET 5
 #define GRID_W 24
 #define GRID_L 28
+#define RECT_H 6
+#define RECT_W 7
 #define PIX_SQU 10
+#define RECT_W_PIX 60
+#define RECT_H_PIX 10
 /*************************************Defines***************************************/
 
 /*********************************Global Variables**********************************/
-// define location of snake with enum
-typedef enum loc{
-    SNAKE = 0, 
-    EMPTY = 1, 
-    ORANGE = 2
-} loc; 
-
-// define direction of snake with enum
 typedef enum dir{
     UP = 0, 
     DOWN = 1, 
@@ -40,7 +36,6 @@ typedef enum dir{
     NONE = 4
 } dir;
 
-// struct for the point a snake is at
 typedef struct Point{
     int16_t row; 
     int16_t col;
@@ -48,41 +43,28 @@ typedef struct Point{
  
 
 typedef struct Block{
-
-    Point current_point;
-    dir snk_dir; 
-
+    Point current_point; 
+    bool is_moving; 
 } Block;
-
-typedef struct Snake{
-    Block snake_array[S_MAX];
-    uint8_t head_index;
-    uint8_t tail_index;
-    dir snk_dir; 
-    uint8_t snake_size;
-
-} Snake;
 
 
 /*********************************Global Variables**********************************/
-// define global square entity based on block struct
-static Block square;
-static Block orange;
-Snake snake;
+// define global box entity based on block struct
+static Block box;
+static Block rect;
 static bool game_begin = true;
 static bool game_over = false;
 static uint16_t joy_data_x;
 static uint16_t joy_data_y;
-loc game_array[X_MAX][Y_MAX];
+static Block rect_array[RECT_H][RECT_W];
+static int16_t color_array[6] = {ST7789_BLUE, ST7789_GREEN, ST7789_RED, ST7789_ORANGE, ST7789_WHITE, ST7789_YELLOW};
 static dir next_dir;
 
 /*********************************** FUNCTIONS ********************************/
 
 // Prototypes
-void draw_block(Block* block, uint16_t color);
-void birth_snake(uint8_t snake_size);
-void update_snake(void);
-void snake_bigger(void);
+void draw_block_bk(Block* block, uint16_t color);
+void draw_segments(void);
 void spawn_orange(void);
 static void check_edge(void);
 static void move_snake(void);
@@ -94,240 +76,178 @@ static inline dir opposite_dir(dir opp);
 
 
 // Definitions
-void draw_block(Block* block, uint16_t color){
+void draw_block_bk(Block* block, uint16_t color){
     G8RTOS_WaitSemaphore(&sem_SPI);
     ST7789_DrawRectangle((*block).current_point.col, (*block).current_point.row, 10, 10, color);
     G8RTOS_SignalSemaphore(&sem_SPI);
 }
 
-void birth_snake(uint8_t snake_size){
-    for(uint8_t i = 0; i < snake_size; ++i){
-        // compensate for pixel size and it's going left 
-        snake.snake_array[i].current_point.col = 55 - 10*i;
-        snake.snake_array[i].current_point.row = 55;
-       
-        if(i != 0){
-            snake.snake_array[i].snk_dir = snake.snake_array[i-1].snk_dir;
+void draw_segments(){
+    for(int8_t i = 0; i < RECT_H; ++i){
+        for(int8_t j = 0; j < RECT_W; ++j){
+            rect_array[i][j].current_point.row = 220 - 20*i + 15;
+            rect_array[i][j].current_point.col = 160 - 20*j + 15;
+            rect_array[i][j].is_moving = false; 
+            draw_block_bk(&rect_array[i][j], color_array[i]); // let each row be the same color
         }
-        draw_block(&snake.snake_array[i], ST7789_WHITE);
-    }
-
-    next_dir = snake.snk_dir;
-}
-
-void update_snake(void){
-    snake.snk_dir = next_dir;
-    // go from tail to head when updating
-    for(int8_t i = snake.snake_size-1; i >= 1; --i){
-        snake.snake_array[i] = snake.snake_array[i-1];
     }
 }
 
-
-void snake_bigger(void){
-    // increment the tail index and snake size
-    snake.snake_size++;
-    snake.tail_index++;
-    // set the new tail equal to the old tail
-    snake.snake_array[snake.tail_index] = snake.snake_array[snake.tail_index-1];
-
-    // update the coordinates of the new tail based on the previous tail's direction
-    if(snake.snake_array[snake.tail_index-1].snk_dir == RIGHT){
-        snake.snake_array[snake.tail_index].current_point.col -= 10;
-    }
-    else if(snake.snake_array[snake.tail_index-1].snk_dir == LEFT){
-        snake.snake_array[snake.tail_index].current_point.col += 10;
-    }
-    else if(snake.snake_array[snake.tail_index-1].snk_dir == UP){
-        snake.snake_array[snake.tail_index].current_point.row += 10;
-    }
-    else if(snake.snake_array[snake.tail_index-1].snk_dir == DOWN){
-        snake.snake_array[snake.tail_index].current_point.row -= 10;
-    }
-
-    // draw the tail again
-    draw_block(&snake.snake_array[snake.tail_index], ST7789_WHITE);
+void draw_rect_bottom(){
+    G8RTOS_WaitSemaphore(&sem_SPI);
+    ST7789_DrawRectangle(rect.current_point.col, rect.current_point.row, RECT_W_PIX, RECT_H_PIX, ST7789_WHITE);
+    G8RTOS_SignalSemaphore(&sem_SPI);
 }
-
-void spawn_orange(void){
-        orange.current_point.col = (rand() % ((X_MAX / PIX_SQU) - 1) * PIX_SQU) + 5;
-        orange.current_point.row = (rand() % ((Y_MAX / PIX_SQU) - 1) * PIX_SQU) + 5;
-        draw_block(&orange, ST7789_ORANGE);
-}
-
 
 static void check_edge(void){
     // edge cases for the blocks
-    if(square.current_point.col + 5 == X_MAX){
-        square.current_point.col = 5;
+    if(box.current_point.col == X_MAX){
+        box.current_point.col--;
     }
-    else if(square.current_point.col - 5 == 0){
-        square.current_point.col = X_MAX - 5;
+    else if(box.current_point.col == 0){
+        box.current_point.col++;
     }
-    else if(square.current_point.row + 5 == Y_MAX){
-        square.current_point.row = 5;
+    else if(box.current_point.row == Y_MAX){
+        box.current_point.row--;
     }
-    else if(square.current_point.row - 5 == 0){
-        square.current_point.row = Y_MAX-5;
+    else if(box.current_point.row == 0){
+        box.current_point.row++;
     }
 }
 
-static void check_lose(void){
-    // edge cases for the blocks
-    if(snake.snake_array[0].current_point.col + 5 >= X_MAX){
-        snake.snk_dir = NONE;
-        game_over = true;
-    }
-    else if(snake.snake_array[0].current_point.col - 5 <= 0){
-        snake.snk_dir = NONE;
-        game_over = true;
-    }
-    else if(snake.snake_array[0].current_point.row + 5 >= Y_MAX){
-        snake.snk_dir = NONE;
-        game_over = true;
-    }
-    else if(snake.snake_array[0].current_point.row - 5 <= 0){
-        snake.snk_dir = NONE;
-        game_over = true;
-    }
+// static void check_lose(void){
+//     // edge cases for the blocks
+//     if(snake.snake_array[0].current_point.col + 5 >= X_MAX){
+//         snake.snk_dir = NONE;
+//         game_over = true;
+//     }
+//     else if(snake.snake_array[0].current_point.col - 5 <= 0){
+//         snake.snk_dir = NONE;
+//         game_over = true;
+//     }
+//     else if(snake.snake_array[0].current_point.row + 5 >= Y_MAX){
+//         snake.snk_dir = NONE;
+//         game_over = true;
+//     }
+//     else if(snake.snake_array[0].current_point.row - 5 <= 0){
+//         snake.snk_dir = NONE;
+//         game_over = true;
+//     }
 
-    if(game_over){
-        snake.snake_array[0].current_point.row = 55;
-        snake.snake_array[0].current_point.col = 55; 
-    }
+//     if(game_over){
+//         snake.snake_array[0].current_point.row = 55;
+//         snake.snake_array[0].current_point.col = 55; 
+//     }
     
 
-    for(uint8_t i = 1; i < snake.snake_size; ++i){
-        if((snake.snake_array[snake.head_index].current_point.row == snake.snake_array[i].current_point.row) && (snake.snake_array[snake.head_index].current_point.col == snake.snake_array[i].current_point.col)){
-            game_over = true; 
-        }
+//     for(uint8_t i = 1; i < snake.snake_size; ++i){
+//         if((snake.snake_array[snake.head_index].current_point.row == snake.snake_array[i].current_point.row) && (snake.snake_array[snake.head_index].current_point.col == snake.snake_array[i].current_point.col)){
+//             game_over = true; 
+//         }
+//     }
+// }
+
+static void move_box(void){
+    // check for box's direction
+    if(box.is_moving){
+        draw_block_bk(&box, ST7789_BLACK);
+        box.current_point.col++;
+        box.current_point.row++;
+        draw_block_bk(&box, ST7789_GREEN);
     }
 }
 
-static void move_snake(void){
-    // check for square's direction
-    if(snake.snk_dir == UP){
-        snake.snake_array[0].current_point.row += 10;
-    }
-    else if(snake.snk_dir == DOWN){
-        snake.snake_array[0].current_point.row -= 10;
-    }
-    else if(snake.snk_dir == LEFT){
-        snake.snake_array[0].current_point.col -= 10;
-    }
-    else if(snake.snk_dir == RIGHT){
-        snake.snake_array[0].current_point.col += 10;
-    }
-}
+// void check_collision(void){
+//     if(snake.snake_array[snake.head_index].current_point.col == orange.current_point.col && snake.snake_array[snake.head_index].current_point.row == orange.current_point.row){
+//         draw_block(&orange, ST7789_BLACK);
+//         spawn_orange();
+//         snake_bigger();
+//     }
+// }
 
-void check_collision(void){
-    if(snake.snake_array[snake.head_index].current_point.col == orange.current_point.col && snake.snake_array[snake.head_index].current_point.row == orange.current_point.row){
-        draw_block(&orange, ST7789_BLACK);
-        spawn_orange();
-        snake_bigger();
-    }
-}
-
-static inline dir opposite_dir(dir opp){
-    switch(opp){
-        case RIGHT : return LEFT; 
-        case LEFT  : return RIGHT; 
-        case UP    : return DOWN; 
-        case DOWN  : return UP;
-        default    : return NONE;
-    }
-}
 
 /*************************************Threads***************************************/
 // Working Threads 
-void Idle_Thread_Snake(void) {
+void Idle_Thread_Breakout(void) {
     for(;;){
     }
 }
 
-void Game_Init(void){
+void BK_Init(void){
     for(;;){
         if(game_begin){
-            // "square.current_point.row = 55; 
-            // square.current_point.col = 55; 
-            // square.snk_dir = RIGHT;"
+            // draw the beeg segments
+            draw_segments();
 
-            snake.snake_size = 3;
-            snake.head_index = 0; 
-            snake.tail_index = 2; 
-            snake.snake_array[0].snk_dir = snake.snk_dir = RIGHT;
+            rect.current_point.col = X_MAX / 2 - 30; 
+            rect.current_point.row = 20;
+            rect.is_moving = true; 
             
-
-            // initialize the snake with 3 segments...exactly like the online game
-            birth_snake(snake.snake_size);
-
-            spawn_orange();
+            box.current_point.col = X_MAX / 2 - 5;
+            box.current_point.row = rect.current_point.row + RECT_H_PIX; // rect width
+            box.is_moving = false; 
             
-            // sleep just in case
-            sleep(10);
-
+            draw_rect_bottom();
+            draw_block_bk(&box, ST7789_GREEN);
             game_begin = false;
         }
 
         if(game_over){
-            G8RTOS_AddThread(Game_Over, 1, "ENDGAME", 22);
+            draw_block_bk(&box, ST7789_BLUE);
         }
+
     }
 }
 
-void Game_Update(void){
+void BK_Update(void){
     if(!game_over){
-        draw_block(&snake.snake_array[snake.tail_index], ST7789_BLACK);
-        update_snake();
-        move_snake();
-        check_lose();
-        sleep(10);
-        check_collision();
-        draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
+        move_box();
+        // check_lose();
+        // sleep(10);
+        // check_collision();
+        // draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
     }
 }
 
 // periodic thread
-void Get_Joystick_Snake(void) {
+void Get_Joystick_BK(void) {
 
     joy_data_x = JOYSTICK_GetX();
     joy_data_y = JOYSTICK_GetY();
-    if(!game_over){
-        dir proposed = snake.snk_dir;
+    // if(!game_over){
+    //     dir proposed = snake.snk_dir;
     
-        if(joy_data_x <= JOY_L_BOUND){
-            proposed = RIGHT;
-        }
-        else if(joy_data_x >= JOY_U_BOUND){
-            proposed = LEFT;
-        }
-        else if(joy_data_y <= JOY_L_BOUND){
-            proposed = DOWN;
-        }
-        else if(joy_data_y >= JOY_U_BOUND){
-            proposed = UP;
-        }
+    //     if(joy_data_x <= JOY_L_BOUND){
+    //         proposed = RIGHT;
+    //     }
+    //     else if(joy_data_x >= JOY_U_BOUND){
+    //         proposed = LEFT;
+    //     }
+    //     else if(joy_data_y <= JOY_L_BOUND){
+    //         proposed = DOWN;
+    //     }
+    //     else if(joy_data_y >= JOY_U_BOUND){
+    //         proposed = UP;
+    //     }
 
-        if(proposed != opposite_dir(snake.snk_dir)){
-            next_dir = proposed;
-        }
-    }
- 
+    //     if(proposed != opposite_dir(snake.snk_dir)){
+    //         next_dir = proposed;
+    //     }
 }
 
-void Game_Over(void){
-    for(;;){
-        G8RTOS_WaitSemaphore(&sem_SPI);
-        ST7789_DrawRectangle(orange.current_point.col, orange.current_point.row, 10, 10, ST7789_BLACK);
-        for(int8_t i = 0; i < snake.snake_size; ++i){
-            ST7789_DrawRectangle(snake.snake_array[i].current_point.col, snake.snake_array[i].current_point.row, 10, 10, ST7789_BLACK);
-        }
-        G8RTOS_SignalSemaphore(&sem_SPI);
-        G8RTOS_KillSelf();
-    }
-}
+// void Game_Over(void){
+//     for(;;){
+//         G8RTOS_WaitSemaphore(&sem_SPI);
+//         ST7789_DrawRectangle(orange.current_point.col, orange.current_point.row, 10, 10, ST7789_BLACK);
+//         for(int8_t i = 0; i < snake.snake_size; ++i){
+//             ST7789_DrawRectangle(snake.snake_array[i].current_point.col, snake.snake_array[i].current_point.row, 10, 10, ST7789_BLACK);
+//         }
+//         G8RTOS_SignalSemaphore(&sem_SPI);
+//         G8RTOS_KillSelf();
+//     }
+// }
 
-void Restart_Game(void){
+void Restart_BK(void){
     for(;;){
         G8RTOS_WaitSemaphore(&sem_JOY);
         sleep(10);
@@ -342,9 +262,61 @@ void Restart_Game(void){
 }
 
 
-void Snake_GPIOD_Handler() {
+void BK_GPIOD_Handler() {
     GPIOIntDisable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
    	GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
     G8RTOS_SignalSemaphore(&sem_JOY);
 }
 
+void Box_Mov(void){
+for(;;){
+        G8RTOS_WaitSemaphore(&sem_PCA9555);        
+
+        // sleep for a bit
+        sleep(10);
+
+        
+        G8RTOS_WaitSemaphore(&sem_I2CA);
+        uint8_t data = MultimodButtons_Get();
+        G8RTOS_SignalSemaphore(&sem_I2CA);
+
+        
+
+        uint8_t SW1P = 0;
+        uint8_t SW2P = 0;
+        uint8_t SW3P = 0;
+        uint8_t SW4P = 0;
+
+        if(~data & SW1){
+            box.is_moving = true;
+        }
+        else if(~data & SW2){
+            SW2P = 1;
+        }
+        else if(~data & SW3){
+            SW3P = 1;
+        }
+        else if(~data & SW4){
+            SW4P = 1;
+        }
+        
+
+        // this helps prevent the pin from activating on a rising edge (weird issue I ran into)
+        uint8_t released;
+        do {
+            G8RTOS_WaitSemaphore(&sem_I2CA);
+            released = MultimodButtons_Get();
+            G8RTOS_SignalSemaphore(&sem_I2CA);
+            sleep(1);
+        } while (~released & (SW1 | SW2 | SW3 | SW4));
+
+        GPIOIntClear(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+        GPIOIntEnable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+    }
+}
+
+void BK_GPIOE_Handler(void){
+    GPIOIntDisable(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+    GPIOIntClear(BUTTONS_INT_GPIO_BASE, BUTTONS_INT_PIN);
+    G8RTOS_SignalSemaphore(&sem_PCA9555);
+}
