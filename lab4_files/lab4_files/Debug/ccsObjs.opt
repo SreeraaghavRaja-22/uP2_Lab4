@@ -1,4 +1,4 @@
-"./lab4_breakout.obj"
+"./frogger.obj"
 "./threads.obj"
 "./tm4c123gh6pm_startup_ccs.obj"
 "./uartstdio.obj"
@@ -25,6 +25,7 @@
 "./MultimodDrivers/src/multimod_spi.obj"
 "./MultimodDrivers/src/multimod_uart.obj"
 "./Quiz_Practice/breakout_threads.obj"
+"./Quiz_Practice/frogger_threads.obj"
 "./Quiz_Practice/snake_threads.obj"
 "../tm4c123gh6pm.cmd"
 -llibc.a
