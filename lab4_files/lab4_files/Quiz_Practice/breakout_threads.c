@@ -60,8 +60,7 @@ static uint16_t joy_data_x;
 static uint16_t joy_data_y;
 static Block rect_array[RECT_H][RECT_W];
 static int16_t color_array[6] = {ST7789_BLUE, ST7789_GREEN, ST7789_RED, ST7789_ORANGE, ST7789_WHITE, ST7789_YELLOW};
-static dir prev_dir_x;
-static dir prev_dir_y;
+static dir next_x;
 
 /*********************************** FUNCTIONS ********************************/
 
@@ -187,6 +186,7 @@ static void move_box(void){
 
 static void move_rect(void){
     draw_rect_bottom(ST7789_BLACK);
+    rect.box_dir_x = next_x;
     if(rect.box_dir_x == RIGHT){
         rect.current_point.col += 10;
     }
@@ -247,8 +247,6 @@ void BK_Init(void){
 
 void BK_Update(void){
     if(!game_over){
-        prev_dir_x = box.box_dir_x;
-        prev_dir_y = box.box_dir_y;
         check_edge();
         move_box();
         move_rect();
@@ -277,7 +275,10 @@ void Get_Joystick_BK(void) {
         else{
             proposed_x = NONE; 
         }
+
+        proposed_x = next_x;
     }
+
 }
 
 // void Game_Over(void){
