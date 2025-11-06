@@ -25,6 +25,7 @@
 #define PIX_SQU 10
 #define RECT_W_PIX 60
 #define RECT_H_PIX 10
+#define BOX_DIM_PIX 10
 /*************************************Defines***************************************/
 
 /*********************************Global Variables**********************************/
@@ -47,6 +48,7 @@ typedef struct Block{
     bool is_moving; 
     dir box_dir_x;
     dir box_dir_y;
+    bool is_alive;
 } Block;
 
 
@@ -57,10 +59,11 @@ static Block rect;
 static bool game_begin = true;
 static bool game_over = false;
 static uint16_t joy_data_x;
-static uint16_t joy_data_y;
+// static uint16_t joy_data_y;
 static Block rect_array[RECT_H][RECT_W];
 static int16_t color_array[6] = {ST7789_BLUE, ST7789_GREEN, ST7789_RED, ST7789_ORANGE, ST7789_WHITE, ST7789_YELLOW};
 static dir next_x;
+static bool hit_block = false;
 
 /*********************************** FUNCTIONS ********************************/
 
@@ -73,7 +76,8 @@ static void move_box(void);
 static void check_edge(void);
 static void move_rect(void);
 static void check_lose(void);
-void check_collision(void);
+static void check_collision(void);
+static void check_seg_coll(Block* block);
 static inline dir opposite_dir(dir opp);
 
 
@@ -92,6 +96,7 @@ void draw_segments(){
             rect_array[i][j].current_point.row = 220 - 20*i + 15;
             rect_array[i][j].current_point.col = 160 - 20*j + 15;
             rect_array[i][j].is_moving = false; 
+            rect_array[i][j].is_alive = true; 
             draw_block_bk(&rect_array[i][j], color_array[i]); // let each row be the same color
         }
     }
@@ -99,7 +104,7 @@ void draw_segments(){
 
 void draw_rect_bottom(int16_t color){
     G8RTOS_WaitSemaphore(&sem_SPI);
-    ST7789_DrawRectangle(rect.current_point.col, rect.current_point.row, RECT_W_PIX, RECT_H_PIX, ST7789_WHITE);
+    ST7789_DrawRectangle(rect.current_point.col, rect.current_point.row, RECT_W_PIX, RECT_H_PIX, color);
     G8RTOS_SignalSemaphore(&sem_SPI);
 }
 
@@ -113,21 +118,18 @@ void check_if_box(void){
 
 static void check_edge(void){
     // edge cases for the blocks
-    if(box.current_point.col + 5 >= X_MAX-1){
+    if(box.current_point.col + 5 >= X_MAX){
         box.box_dir_x = LEFT;
     }
     else if(box.current_point.col - 5 <= 0){
         box.box_dir_x = RIGHT;
     }
-    else if(box.current_point.row + 5 >= Y_MAX-1){
+    
+    if(box.current_point.row + 5 >= Y_MAX){
         box.box_dir_y = DOWN;
     }
     else if(box.current_point.row - 5 <= 0){
         box.box_dir_y = UP;
-    }
-    else if(box.current_point.row - 5 <= 0 && box.current_point.col - 5 <= 0){
-        box.box_dir_x = RIGHT;
-        box.box_dir_y = DOWN;
     }
 }
 
@@ -185,7 +187,15 @@ static void move_box(void){
 }
 
 static void move_rect(void){
+
+    // G8RTOS_WaitSemaphore(&sem_UART);
+    // UARTprintf("x_val: %u, y_val: %u\n\n", rect.current_point.col, rect.current_point.row);
+    // UARTprintf("x_val: %u, y_val: %u\n\n", box.current_point.col, box.current_point.row);
+    // G8RTOS_SignalSemaphore(&sem_UART);
+
+    
     draw_rect_bottom(ST7789_BLACK);
+
     rect.box_dir_x = next_x;
     if(rect.box_dir_x == RIGHT){
         rect.current_point.col += 10;
@@ -193,19 +203,84 @@ static void move_rect(void){
     else if(rect.box_dir_x == LEFT){
         rect.current_point.col -= 10;
     }
-    else{
-        rect.current_point.col += 0; // this is to ragebait
+
+    // boundary conditions for the rectangle's movement (defined by left corner)
+    if(rect.current_point.col <= 0){
+        rect.current_point.col = 0;
     }
+    else if(rect.current_point.col + RECT_W_PIX >= X_MAX){
+        rect.current_point.col = X_MAX - RECT_W_PIX;
+    }
+
     draw_rect_bottom(ST7789_WHITE);
+    
+    G8RTOS_WaitSemaphore(&sem_SPI);
+    ST7789_DrawRectangle(0, 0, 60, 10, ST7789_BLACK);
+    G8RTOS_SignalSemaphore(&sem_SPI);
 }
 
-// void check_collision(void){
-//     if(snake.snake_array[snake.head_index].current_point.col == orange.current_point.col && snake.snake_array[snake.head_index].current_point.row == orange.current_point.row){
-//         draw_block(&orange, ST7789_BLACK);
-//         spawn_orange();
-//         snake_bigger();
-//     }
-// }
+void check_collision(void){
+    
+    // check for rectangle collision first
+    if((box.current_point.row == rect.current_point.row + RECT_H_PIX) && (box.current_point.col >= rect.current_point.col && box.current_point.col <= (rect.current_point.col + RECT_W_PIX)) && (box.box_dir_y == DOWN)){
+        box.box_dir_y = UP;
+    }
+
+    for(int8_t i = 0; i < RECT_H; ++i){
+        for(int8_t j = 0; j < RECT_W; ++j){
+            check_seg_coll(&rect_array[i][j]);
+            if(hit_block){
+                hit_block = false; 
+                break;
+            }
+        }
+    }
+}
+
+static void check_seg_coll(Block* block){
+    if((*block).is_alive){
+            // Check top or bottom collision
+        if (box.current_point.col >= (*block).current_point.col &&
+            box.current_point.col < (*block).current_point.col + RECT_W_PIX &&
+            box.current_point.row == (*block).current_point.row + RECT_H_PIX) {
+
+            box.box_dir_y = DOWN;
+            hit_block = true;
+            draw_block_bk(block, ST7789_BLACK);
+            (*block).is_alive = false; 
+
+        }
+        else if (box.current_point.col >= (*block).current_point.col &&
+            box.current_point.col < (*block).current_point.col + RECT_W_PIX &&
+            box.current_point.row + BOX_DIM_PIX == (*block).current_point.row) {
+            
+            box.box_dir_y = UP;
+            hit_block = true;
+            draw_block_bk(block, ST7789_BLACK);
+            (*block).is_alive = false; 
+        }
+
+        // Check left or right collision
+        else if (box.current_point.row >= (*block).current_point.row &&
+            box.current_point.row < (*block).current_point.row + RECT_H_PIX &&
+            box.current_point.col + BOX_DIM_PIX == (*block).current_point.col) {
+            
+            box.box_dir_x = LEFT;
+            hit_block = true;
+            draw_block_bk(block, ST7789_BLACK);
+            (*block).is_alive = false; 
+        }
+        else if (box.current_point.row >= (*block).current_point.row &&
+            box.current_point.row < (*block).current_point.row + RECT_H_PIX &&
+            box.current_point.col == (*block).current_point.col + RECT_W_PIX) {
+
+            box.box_dir_x = RIGHT;
+            hit_block = true;
+            draw_block_bk(block, ST7789_BLACK);
+            (*block).is_alive = false; 
+        }
+    }  
+}
 
 
 /*************************************Threads***************************************/
@@ -224,6 +299,7 @@ void BK_Init(void){
             rect.current_point.col = X_MAX / 2 - 30; 
             rect.current_point.row = 20;
             rect.is_moving = true; 
+            rect.box_dir_x = NONE;
             
             box.current_point.col = X_MAX / 2 - 5;
             box.current_point.row = rect.current_point.row + RECT_H_PIX; // rect width
@@ -248,11 +324,10 @@ void BK_Init(void){
 void BK_Update(void){
     if(!game_over){
         check_edge();
+        check_collision();
         move_box();
         move_rect();
         // check_lose();
-        // sleep(10);
-        // check_collision();
         // draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
         draw_block_bk(&box, ST7789_GREEN);
     }
@@ -262,7 +337,7 @@ void BK_Update(void){
 void Get_Joystick_BK(void) {
 
     joy_data_x = JOYSTICK_GetX();
-    //joy_data_y = JOYSTICK_GetY();
+
     if(!game_over){
         dir proposed_x = rect.box_dir_x;
     
@@ -276,9 +351,8 @@ void Get_Joystick_BK(void) {
             proposed_x = NONE; 
         }
 
-        proposed_x = next_x;
+        next_x = proposed_x;
     }
-
 }
 
 // void Game_Over(void){

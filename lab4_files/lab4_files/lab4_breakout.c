@@ -72,7 +72,7 @@ int main(void) {
     G8RTOS_AddThread(Restart_BK, 1, "RESTART", 88);
 
     // PERIODIC THREADS
-    G8RTOS_Add_PeriodicEvent(BK_Update, 200, 6); // same period but staggered by 1 ms
+    G8RTOS_Add_PeriodicEvent(BK_Update, 175, 6); // same period but staggered by 1 ms
     G8RTOS_Add_PeriodicEvent(Get_Joystick_BK, 30, 9);
 
  
