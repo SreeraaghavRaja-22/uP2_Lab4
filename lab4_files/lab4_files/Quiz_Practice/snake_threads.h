@@ -28,6 +28,7 @@ void Idle_Thread_Snake(void);
 void Block_Init(void);
 void Game_Update(void);
 void Get_Joystick_Snake(void);
+void Game_Over(void);
 void Restart_Game(void);
 
 

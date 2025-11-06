@@ -73,7 +73,7 @@ int main(void) {
 
     // PERIODIC THREADS
     G8RTOS_Add_PeriodicEvent(Game_Update, 200, 6); // same period but staggered by 1 ms
-    G8RTOS_Add_PeriodicEvent(Get_Joystick_Snake, 30, 7);
+    G8RTOS_Add_PeriodicEvent(Get_Joystick_Snake, 30, 9);
     
     G8RTOS_Launch();
 
