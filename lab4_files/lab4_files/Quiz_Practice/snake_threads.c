@@ -175,17 +175,27 @@ static void check_edge(void){
 static void check_lose(void){
     // edge cases for the blocks
     if(snake.snake_array[0].current_point.col + 5 >= X_MAX){
+        snake.snk_dir = NONE;
         game_over = true;
     }
     else if(snake.snake_array[0].current_point.col - 5 <= 0){
+        snake.snk_dir = NONE;
         game_over = true;
     }
     else if(snake.snake_array[0].current_point.row + 5 >= Y_MAX){
+        snake.snk_dir = NONE;
         game_over = true;
     }
     else if(snake.snake_array[0].current_point.row - 5 <= 0){
+        snake.snk_dir = NONE;
         game_over = true;
     }
+
+    if(game_over){
+        snake.snake_array[0].current_point.row = 55;
+        snake.snake_array[0].current_point.col = 55; 
+    }
+    
 
     for(uint8_t i = 1; i < snake.snake_size; ++i){
         if((snake.snake_array[snake.head_index].current_point.row == snake.snake_array[i].current_point.row) && (snake.snake_array[snake.head_index].current_point.col == snake.snake_array[i].current_point.col)){
@@ -235,7 +245,7 @@ void Idle_Thread_Snake(void) {
     }
 }
 
-void Block_Init(void){
+void Game_Init(void){
     for(;;){
         if(game_begin){
             // "square.current_point.row = 55; 
@@ -258,18 +268,23 @@ void Block_Init(void){
 
             game_begin = false;
         }
+
+        if(game_over){
+            G8RTOS_AddThread(Game_Over, 1, "ENDGAME", 22);
+        }
     }
 }
 
 void Game_Update(void){
-
-    draw_block(&snake.snake_array[snake.tail_index], ST7789_BLACK);
-    update_snake();
-    move_snake();
-    check_lose();
-    sleep(10);
-    check_collision();
-    draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
+    if(!game_over){
+        draw_block(&snake.snake_array[snake.tail_index], ST7789_BLACK);
+        update_snake();
+        move_snake();
+        check_lose();
+        sleep(10);
+        check_collision();
+        draw_block(&snake.snake_array[snake.head_index], ST7789_WHITE);
+    }
 }
 
 // periodic thread
@@ -277,32 +292,59 @@ void Get_Joystick_Snake(void) {
 
     joy_data_x = JOYSTICK_GetX();
     joy_data_y = JOYSTICK_GetY();
+    if(!game_over){
+        dir proposed = snake.snk_dir;
+    
+        if(joy_data_x <= JOY_L_BOUND){
+            proposed = RIGHT;
+        }
+        else if(joy_data_x >= JOY_U_BOUND){
+            proposed = LEFT;
+        }
+        else if(joy_data_y <= JOY_L_BOUND){
+            proposed = DOWN;
+        }
+        else if(joy_data_y >= JOY_U_BOUND){
+            proposed = UP;
+        }
 
-    dir proposed = snake.snk_dir;
-  
-    if(joy_data_x <= JOY_L_BOUND){
-        proposed = RIGHT;
+        if(proposed != opposite_dir(snake.snk_dir)){
+            next_dir = proposed;
+        }
     }
-    else if(joy_data_x >= JOY_U_BOUND){
-        proposed = LEFT;
-    }
-    else if(joy_data_y <= JOY_L_BOUND){
-        proposed = DOWN;
-    }
-    else if(joy_data_y >= JOY_U_BOUND){
-        proposed = UP;
-    }
-
-    if(proposed != opposite_dir(snake.snk_dir)){
-        next_dir = proposed;
-    }
+ 
 }
 
 void Game_Over(void){
     for(;;){
         G8RTOS_WaitSemaphore(&sem_SPI);
-        ST7789_Fill(ST7789_ORANGE);
+        ST7789_DrawRectangle(orange.current_point.col, orange.current_point.row, 10, 10, ST7789_BLACK);
+        for(int8_t i = 0; i < snake.snake_size; ++i){
+            ST7789_DrawRectangle(snake.snake_array[i].current_point.col, snake.snake_array[i].current_point.row, 10, 10, ST7789_BLACK);
+        }
         G8RTOS_SignalSemaphore(&sem_SPI);
+        G8RTOS_KillSelf();
     }
+}
+
+void Restart_Game(void){
+    for(;;){
+        G8RTOS_WaitSemaphore(&sem_JOY);
+        sleep(10);
+        uint32_t data = GPIOPinRead(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+        if(data == 0){
+            // toggle joystick flag value
+            game_begin = true; 
+            game_over = false; 
+        }
+        GPIOIntEnable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+    }
+}
+
+
+void Snake_GPIOD_Handler() {
+    GPIOIntDisable(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+   	GPIOIntClear(JOYSTICK_INT_GPIO_BASE, JOYSTICK_INT_PIN);
+    G8RTOS_SignalSemaphore(&sem_JOY);
 }
 

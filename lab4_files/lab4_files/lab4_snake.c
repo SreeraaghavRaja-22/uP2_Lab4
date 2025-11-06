@@ -68,12 +68,18 @@ int main(void) {
     // IDLE THREAD
     G8RTOS_AddThread(Idle_Thread_Snake, MIN_PRIORITY, "IDLE", 200);
 
+    // APERIODIC THREADS
+    G8RTOS_Add_APeriodicEvent(Snake_GPIOD_Handler, 2, INT_GPIOD);
+
     // Background Threads
-    G8RTOS_AddThread(Block_Init, 20, "BLOCK_INIT", 1);
+    G8RTOS_AddThread(Game_Init, 20, "BLOCK_INIT", 1);
+    G8RTOS_AddThread(Restart_Game, 1, "RESTART", 88);
 
     // PERIODIC THREADS
     G8RTOS_Add_PeriodicEvent(Game_Update, 200, 6); // same period but staggered by 1 ms
     G8RTOS_Add_PeriodicEvent(Get_Joystick_Snake, 30, 9);
+
+ 
     
     G8RTOS_Launch();
 
