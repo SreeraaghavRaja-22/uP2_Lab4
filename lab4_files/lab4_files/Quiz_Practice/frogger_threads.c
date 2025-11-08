@@ -56,6 +56,7 @@ typedef struct Car{
     bool is_moving; 
     dir car_dir_x; 
     uint8_t speed; 
+    bool delete;
 } Car; 
 
 
@@ -83,9 +84,10 @@ static bool hit_block = false;
 static void spawn_frog_coor();
 static void draw_block_frogger(Block* block, uint16_t color, uint16_t bg_color);
 static void draw_segments(Block* block);
-static void update_frog_coor();
-static void draw_car();
-static void update_car_pos();
+static void update_frog_coor(void);
+static void draw_car(Car* car, int16_t color);
+static void update_car_pos(Car * car);
+static void render_cars(void);
 //static void check_edge(void);
 //static void move_rect(void);
 //static void check_lose(void);
@@ -163,9 +165,9 @@ static void update_frog_coor(){
     }
 }
 
-static void draw_car(Car* car){
+static void draw_car(Car* car, int16_t color){
     G8RTOS_WaitSemaphore(&sem_SPI);
-    ST7789_DrawRectangle((*car).current_point.col, (*car).current_point.row, 20, 20, ST7789_RED);
+    ST7789_DrawRectangle((*car).current_point.col, (*car).current_point.row, 20, 10, color);
     G8RTOS_SignalSemaphore(&sem_SPI);
 }
 
@@ -176,9 +178,29 @@ static void update_car_pos(Car* car){
     else if((*car).car_dir_x == LEFT){
         (*car).current_point.col += (*car).speed;
     }
+
+    if((*car).current_point.col >= X_MAX){
+        (*car).delete = true;
+        (*car).current_point.col = X_MAX;
+    }
+    else if((*car).current_point.col <= 0){
+        (*car).current_point.col = 0;
+    }
 }
 
 
+static void render_cars(void){
+    for(int8_t i = 0; i < 4; ++i){
+        for(int8_t j = 0; j < 4; ++j){
+            car_array[i][j].car_dir_x = (rand() % 2) + 2;
+            car_array[i][j].is_moving = true; 
+            car_array[i][j].current_point.row = 40 + 20*i;
+            car_array[i][j].current_point.col = (rand() % X_MAX);
+            car_array[i][j].speed = rand() % 3 * 10; 
+            draw_car(&car_array[i][j], ST7789_RED);
+        }
+    }
+}
 
 
 /*************************************Threads***************************************/
@@ -207,7 +229,7 @@ void Frogger_Init(void){
             frog.box_dir_y = NONE;
             draw_block_frogger(&frog, ST7789_GREEN, ST7789_WHITE);
 
-            Render_Cars();          
+            render_cars();          
             game_begin = false;
         }
 
@@ -236,6 +258,8 @@ void Move_Frog(void){
     }
 }
 
+void Move_Car(void){
+}
 // void Frogger_Update(void){
 //     if(!game_over){
 //         check_edge();
@@ -301,25 +325,13 @@ void Get_Joystick_Frogger(void) {
 }
 
 
-void Render_Cars(void){
-    for(;;){
-        for(int8_t i = 0; i < 4; ++i){
-            for(int8_t j = 0; j<4; ++j){
-                car_array[i][j].car_dir_x = (rand() % 2) + 2;
-                car_array[i][j].is_moving = true; 
-                car_array[i][j].current_point.row = 40 + 20*i;
-                car_array[i][j].current_point.col = (rand() % X_MAX);
-                car_array[i][j].speed = rand() % 3 * 10; 
-                draw_car(&car_array[i][j]);
-         }
-     }
-  }
-}
 
 void Update_Cars(void){
-    for(int8_t i = 0; i < 4; ++i){
-        for(int8_t j = 0; j<4; ++j){
-            
+    for(int8_t i = 0; i < 2; ++i){
+        for(int8_t j = 0; j < 2; ++j){
+            draw_car(&car_array[i][j], ST7789_BLACK);
+            update_car_pos(&car_array[i][j]);
+            draw_car(&car_array[i][j], ST7789_RED);
         }
     }
 }

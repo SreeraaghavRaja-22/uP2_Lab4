@@ -22,7 +22,6 @@ semaphore_t sem_KillCube;
 void Idle_Thread_Frogger(void);
 void Frogger_Init(void);
 void Move_Frog(void);
-void Render_Cars(void);
 void Update_Cars(void);
 void Get_Joystick_Frogger(void);
 void Game_Over_Frogger(void);

@@ -41,9 +41,6 @@ int main(void) {
     // sysclock
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
-
-
-
     // Initializes the necessary peripherals.
     Multimod_Init();
 
@@ -68,12 +65,13 @@ int main(void) {
 
     // Background Threads
     G8RTOS_AddThread(Frogger_Init, 20, "GAME_INIT", 1);
-    //G8RTOS_AddThread(Move_Frog, 21, "Move", 23);
+    //G8RTOS_AddThread(Update_Cars, 21, "Move_Cars", 3);
     //G8RTOS_AddThread(Restart_Frogger, 1, "RESTART", 88);
 
     // PERIODIC THREADS
     G8RTOS_Add_PeriodicEvent(Move_Frog, 175, 6); // same period but staggered by 1 ms
     G8RTOS_Add_PeriodicEvent(Get_Joystick_Frogger, 30, 9);
+
 
  
     
